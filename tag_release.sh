@@ -370,7 +370,7 @@ validate_local_vs_remote() {
     read -rsp $'Press "y" to continue anyway, any other key to cancel.\n' -n1 keyPressed
 
     if [ "$keyPressed" = 'y' ] || [ "$keyPressed" = 'Y' ]; then
-      do_tagging
+      do_release
     else
       echo
       info "Exiting without tagging a commit"
