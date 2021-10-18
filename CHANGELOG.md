@@ -12,16 +12,16 @@ DO NOT ADD CHANGES HERE - ADD THEM USING log_change.sh
 ~~~
 
 
-## [v7.0-beta.148] - 2021-09-30
+## [v1.0.1] - 2021-09-30
 
 * Change some stuff
 
 
-## [v7.0-beta.147] - 2021-09-30
+## [v1.0.0] - 2021-09-30
 
-* Change some stuff
+* Initial Release
 
 
-[Unreleased]: https://github.com/gchq/stroom/compare/v7.0-beta.148...HEAD
-[v7.0-beta.148]: https://github.com/gchq/stroom/compare/v7.0-beta.147...v7.0-beta.148
-[v7.0-beta.147]: https://github.com/gchq/stroom/compare/v7.0-beta.147...v7.0-beta.147
+[Unreleased]: https://github.com/gchq/stroom/compare/v1.0.1...HEAD
+[v1.0.1]: https://github.com/gchq/stroom/compare/v1.0.0...v1.0.1
+[v1.0.0]: https://github.com/gchq/stroom/compare/v1.0.0...v1.0.0
