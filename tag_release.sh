@@ -89,6 +89,8 @@ set -euo pipefail
 # File containing the configuration values for this script
 TAG_RELEASE_CONFIG_FILENAME='tag_release_config.env'
 
+UNRELEASED_CHANGES_COMMENT='DO NOT ADD CHANGES HERE - ADD THEM USING log_change.sh'
+
 # Configure the following for your github repository
 # ----------------------------------------------------------
 # Git tags should match this regex to be a release tag
@@ -718,9 +720,9 @@ scan_change_files() {
   # Remove the last line which will be empty
   unreleased_changes_text="$(echo -e "${unreleased_changes_text}" | head -n-1)"
 
-  echo "#######################"
-  echo -e "${unreleased_changes_text}"
-  echo "#######################"
+  debug "#######################"
+  debug "${unreleased_changes_text}"
+  debug "#######################"
 }
 
 main() {
