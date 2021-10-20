@@ -95,7 +95,7 @@ get_git_issue_from_branch() {
   echo "${git_issue_from_branch}"
 }
 
-establish_git_namespace_and_repo() {
+establish_git_remote_namespace_and_repo() {
   # 'origin https://github.com/gchq/stroom.git (fetch)' => 'gchq stroom'
   # read the space delimited values into an array so we can split them
   local namespace_and_repo=()
@@ -128,7 +128,7 @@ validate_git_issue() {
   if [[ ! "${git_issue}" =~ ^([_.a-zA-Z0-9-]+\/[_.a-zA-Z0-9-]+\#[0-9]+|[0-9]+)$ ]]; then
     error_exit "Invalid github issue number ${BLUE}${git_issue}${NC}." \
       "Should be of the form ${BLUE}1234${NC}," \
-      "${BLUE}namespace/repo#1234${NC}, ${BLUE}0${NC} or ${BLUE}AUTO${NC}."
+      "${BLUE}namespace/repo#1234${NC}, ${BLUE}0${NC} or ${BLUE}auto${NC}."
   fi
 
   # global scope
@@ -422,6 +422,28 @@ validate_change_file() {
   #fi
 }
 
+list_unreleased_changes() {
+
+  local found_change_files=false
+  local list_output=""
+
+  for file in "${unreleased_dir}/"*.md; do
+    if [[ -f "${file}" ]]; then
+      found_change_files=true
+      local change_entry_line
+      change_entry_line="$(head -n1 "${file}" )"
+
+      list_output+="${file}: ${change_entry_line}\n"
+    fi
+  done
+
+  if [[ "${found_change_files}" = true ]]; then
+    echo -e "${list_output}"
+  else
+    info "There are no unreleased changes"
+  fi
+}
+
 main() {
   #local SCRIPT_DIR
   #SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
@@ -433,17 +455,19 @@ main() {
     error "Invalid arguments"
     echo -e "Usage: $0 github_issue [change_text]" >&2
     echo -e "git_issue - GitHub issue number in one of the following formats:" >&2
+    echo -e "            0 - No issue exists for this change" >&2
     echo -e "            n - Just the issue number." >&2
     echo -e "            namespace/repo#n - Issue number on another repo." >&2
-    echo -e "            AUTO - Will derive the issue number from the current branch." >&2
-    echo -e "            0 - No issue exists for this change" >&2
+    echo -e "            auto - Will derive the issue number from the current branch." >&2
+    echo -e "            list - List all unreleased issues." >&2
     echo -e "change_text - The change text in github markdown format. This will be appended to" >&2
     echo -e "              change log entry" >&2
     echo -e "E.g:   $0 1234 \"Fix nasty bug\"" >&2
     echo -e "E.g:   $0 gchq/stroom#1234 \"Fix nasty bug\"" >&2
     echo -e "E.g:   $0 1234" >&2
-    echo -e "E.g:   $0 AUTO \"Fix nasty bug\"" >&2
+    echo -e "E.g:   $0 auto \"Fix nasty bug\"" >&2
     echo -e "E.g:   $0 0 \"Fix something without an issue number\"" >&2
+    echo -e "E.g:   $0 list" >&2
     exit 1
   fi
 
@@ -455,24 +479,27 @@ main() {
 
   validate_in_git_repo
 
-  establish_git_namespace_and_repo
-  
-  if [[ "${git_issue}" = "AUTO" ]]; then
-    git_issue="$(get_git_issue_from_branch)"
-  else
-    validate_git_issue "${git_issue}"
-  fi
+  establish_git_remote_namespace_and_repo
 
   local repo_root_dir
   repo_root_dir="$(git rev-parse --show-toplevel)"
   local unreleased_dir="${repo_root_dir}/${UNRELEASED_DIR_NAME}"
-
   mkdir -p "${unreleased_dir}"
 
-  if [[ "${git_issue}" = "0" ]] \
-    || ! is_existing_change_file_present "${git_issue}" "${change_text:-}"; then
+  if [[ "${git_issue}" = "list" ]]; then
+    list_unreleased_changes
+  else
+    if [[ "${git_issue}" = "auto" ]]; then
+      git_issue="$(get_git_issue_from_branch)"
+    else
+      validate_git_issue "${git_issue}"
+    fi
 
-    write_change_entry "${git_issue}" "${change_text:-}"
+    if [[ "${git_issue}" = "0" ]] \
+      || ! is_existing_change_file_present "${git_issue}" "${change_text:-}"; then
+
+      write_change_entry "${git_issue}" "${change_text:-}"
+    fi
   fi
 }
 
