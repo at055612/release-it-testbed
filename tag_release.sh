@@ -799,19 +799,23 @@ scan_change_files() {
   debug "Scanning ${unreleased_changes_dir}"
 
   for change_file in "${unreleased_changes_dir}/"*_*__*.md; do
-    debug "change_file: ${change_file}"
-    are_unreleased_issues_in_files=true
+    if [[ -f "${change_file}" ]]; then
+      debug "change_file: ${change_file}"
+      are_unreleased_issues_in_files=true
 
-    local change_line
-    change_line="$(head -n1 "${change_file}")"
+      local change_line
+      change_line="$(head -n1 "${change_file}")"
 
-    unreleased_changes_text+="${change_line}\n\n"
+      unreleased_changes_text+="${change_line}\n\n"
+    fi
   done
 
-  # Remove the last line which will be empty
-  unreleased_changes_text="$(echo -e "${unreleased_changes_text}" | head -n-1)"
+  if [[ "${are_unreleased_issues_in_files}" = true ]]; then
+    # Remove the last line which will be empty
+    unreleased_changes_text="$(echo -e "${unreleased_changes_text}" | head -n-1)"
 
-  debug "unreleased_changes_text:\n${unreleased_changes_text}"
+    debug "unreleased_changes_text:\n${unreleased_changes_text}"
+  fi
 }
 
 main() {
