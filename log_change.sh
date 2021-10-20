@@ -14,7 +14,7 @@
 
 set -euo pipefail
 
-IS_DEBUG=true
+IS_DEBUG=false
 UNRELEASED_DIR_NAME="unreleased_changes"
 
 setup_echo_colours() {
