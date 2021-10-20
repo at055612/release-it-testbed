@@ -12,14 +12,6 @@ DO NOT ADD CHANGES HERE - ADD THEM USING log_change.sh
 ~~~
 
 
-## [v1.0.2] - 2021-10-20
-
-* Fix something Mon 18 Oct 17:38:00 BST 2021
-
-* Fix something Mon 18 Oct 17:38:03 BST 2021
-
-
-
 ## [v1.0.1] - 2021-09-30
 
 * Change some stuff
@@ -31,6 +23,5 @@ DO NOT ADD CHANGES HERE - ADD THEM USING log_change.sh
 
 
 [Unreleased]: https://github.com/at055612/release-it-testbed/compare/v1.0.1...HEAD
-[v1.0.2]: https://github.com/at055612/release-it/compare/v1.0.1...v1.0.2
 [v1.0.1]: https://github.com/at055612/release-it-testbed/compare/v1.0.0...v1.0.1
 [v1.0.0]: https://github.com/at055612/release-it-testbed/compare/v1.0.0...v1.0.0
