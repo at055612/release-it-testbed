@@ -469,10 +469,10 @@ main() {
 
   mkdir -p "${unreleased_dir}"
 
-  if [[ "${git_issue}" != "0" ]]; then
-    if ! is_existing_change_file_present "${git_issue}" "${change_text:-}"; then
-      write_change_entry "${git_issue}" "${change_text:-}"
-    fi
+  if [[ "${git_issue}" != "0" ]] \
+    || ! is_existing_change_file_present "${git_issue}" "${change_text:-}"; then
+
+    write_change_entry "${git_issue}" "${change_text:-}"
   fi
 }
 
