@@ -480,13 +480,30 @@ modify_changelog() {
     #'/^[~]{3}/,/^[~]{3}/!p' \
     #"${changelog_file}"
 
+
   # Add the new release heading after the [Unreleased] heading
   # along with the unreleased change entries
   # plus some new lines \\\n\n seems to provide two new lines
   sed \
     --in-place'' \
-    "/${UNRELEASED_HEADING_REGEX}/a \\\n\n${new_heading}\\\n\n${unreleased_changes_text}" \
+    "/${UNRELEASED_HEADING_REGEX}/ a \\\n\n${new_heading}" \
     "${changelog_file}"
+
+  local change_text_temp_file
+  change_text_temp_file=$(mktemp --suffix=_tag_release)
+
+  # Write our unreleased change entries to a temp file
+  # with a blank line above
+  echo -e "\n${unreleased_changes_text}" > "${change_text_temp_file}"
+
+  # Now add contents of the temp file below the new version heading
+  sed \
+    --regexp-extended \
+    --in-place'' \
+    "/## \[${next_release_version}\]/ r ${change_text_temp_file}" \
+    "${changelog_file}"
+
+  rm "${change_text_temp_file}"
 
   local compare_regex="^(\[Unreleased\]: https:\/\/github\.com\/${GITHUB_NAMESPACE}\/${GITHUB_REPO}\/compare\/)(.*)\.{3}(.*)$"
 
