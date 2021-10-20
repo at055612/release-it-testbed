@@ -443,7 +443,7 @@ list_unreleased_changes() {
       change_entry_line="$(head -n1 "${file}" )"
 
       entry_map["${filename}"]="${change_entry_line}"
-      list_output+="${filename}:\n${change_entry_line}\n\n"
+      list_output+="${BLUE}${filename}${NC}:\n${YELLOW}${change_entry_line}${NC}\n\n"
     fi
   done
 
