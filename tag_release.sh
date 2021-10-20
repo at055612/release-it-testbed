@@ -430,6 +430,8 @@ commit_changelog() {
 
   # so ignore all the ones we expect and see if there is anything else changed
 
+  echo x
+
   local changed_files
   changed_files="$( \
     git \
@@ -440,6 +442,7 @@ commit_changelog() {
       --regexp "M ${CHANGELOG_FILENAME}" \
       --regexp "D ${UNRELEASED_CHANGES_REL_DIR}/.*\.md" \
   )"
+  echo y
 
   if [[ -n "${changed_files}" ]]; then
     echo 
