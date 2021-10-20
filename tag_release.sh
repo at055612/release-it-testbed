@@ -557,10 +557,20 @@ modify_changelog() {
     new_link_line="[${next_release_version}]: ${GITHUB_URL_BASE}/compare/${prev_release_version}...${next_release_version}"
     debug "Appending compare link"
     sed \
+      --regexp-extended \
       --in-place'' \
       "/${UNRELEASED_LINK_REGEX}/a ${new_link_line}" \
       "${changelog_file}"
   fi
+
+  # Tidy up any instances of 3 or more blank lines replacing them
+  # with 2 blank lines
+  sed \
+    --regexp-extended \
+    --in-place'' \
+    --null-data \
+    's/\n{4,}/\n\n/g' \
+    "${changelog_file}"
 
   commit_changelog "${next_release_version}"
 }
