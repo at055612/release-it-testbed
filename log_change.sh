@@ -437,8 +437,8 @@ list_unreleased_changes() {
       local filename
       filename="$(basename "${file}" )"
 
-      filename_len=${#filename}
-      max_filename_len=$(( filename_len > max_filename_len ? filename_len : max_filename_len))
+      #filename_len=${#filename}
+      #max_filename_len=$(( filename_len > max_filename_len ? filename_len : max_filename_len))
 
       local change_entry_line
       change_entry_line="$( \
@@ -448,12 +448,13 @@ list_unreleased_changes() {
       )"
           #"s/(Issue [*]{2})([^*]+)([*]{2})/\1|\2|\3/"
 
-      entry_map["${filename}"]="${change_entry_line}"
+      #entry_map["${filename}"]="${change_entry_line}"
       list_output+="${BLUE}${filename}${NC}:\n${YELLOW}${change_entry_line}${NC}\n\n"
     fi
   done
 
-  if [[ "${#entry_map[@]}" -gt 0 ]]; then
+  #if [[ "${#entry_map[@]}" -gt 0 ]]; then
+  if [[ "${found_change_files}" = true ]]; then
     #for filename in "${!MYMAP[@]}"; do echo $K; done
 
     echo -e "${list_output}"
