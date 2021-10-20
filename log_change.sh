@@ -447,7 +447,7 @@ list_unreleased_changes() {
           "${file}" \
         | sed \
           --regexp-extended \
-          "s/(Issue [*]{2})([^*]+)([*]{2})/\1\2\3/g"
+          "s/(Issue [*]{2})([^*]+)([*]{2})/\1[\2]\3/g"
       )"
           #"s/(Issue [*]+)(.*?)([*]+)/\1${BLUE}\2${YELLOW}\3/g"
 
