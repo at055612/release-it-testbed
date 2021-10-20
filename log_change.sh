@@ -426,21 +426,15 @@ list_unreleased_changes() {
 
   local found_change_files=false
   local list_output=""
-  local max_filename_len=0
-
-  # map of filename => change entry line
-  declare -A entry_map
 
   for file in "${unreleased_dir}/"*.md; do
     if [[ -f "${file}" ]]; then
-      found_change_files=true
       local filename
+      local change_entry_line
+
+      found_change_files=true
       filename="$(basename "${file}" )"
 
-      #filename_len=${#filename}
-      #max_filename_len=$(( filename_len > max_filename_len ? filename_len : max_filename_len))
-
-      local change_entry_line
       change_entry_line="$( \
         head \
           -n1 \
@@ -448,7 +442,6 @@ list_unreleased_changes() {
       )"
           #"s/(Issue [*]{2})([^*]+)([*]{2})/\1|\2|\3/"
 
-      #entry_map["${filename}"]="${change_entry_line}"
       list_output+="${BLUE}${filename}${NC}:\n${YELLOW}${change_entry_line}${NC}\n\n"
     fi
   done
@@ -457,7 +450,7 @@ list_unreleased_changes() {
   if [[ "${found_change_files}" = true ]]; then
     #for filename in "${!MYMAP[@]}"; do echo $K; done
 
-    echo -e "${list_output}"
+    echo -e "${list_output%$'\n\n'}"
   else
     info "There are no unreleased changes"
   fi
