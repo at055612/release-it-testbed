@@ -544,8 +544,10 @@ prepare_changelog_for_release() {
   local next_release_version=""
   local next_release_version_guess=""
 
-  info "These are the unreleased changes that will be added to the CHANGELOG:\n" \
-    "${unreleased_changes_text}"
+  info "These are the unreleased changes that will be added to the CHANGELOG:" \
+    "\n${YELLOW}------------------------------------" \
+    "\n${unreleased_changes_text}" \
+    "\n------------------------------------${NC}"
 
   info "\nThe changelog needs to be modified for a new release" \
     "version."
