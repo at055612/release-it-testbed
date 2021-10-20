@@ -626,8 +626,7 @@ prepare_changelog_for_release() {
     "\n${unreleased_changes_text}" \
     "\n------------------------------------${NC}"
 
-  info "\nThe changelog needs to be modified for a new release" \
-    "version."
+  info "\nThe changelog will be modified for the new release version."
 
   if [ -n "${prev_release_version}" ]; then
     info "\nThe last release tag/version was:" \
