@@ -294,13 +294,12 @@ write_change_entry() {
     issue_part="${issue_prefix}${git_issue}${issue_suffix}"
   fi
 
-  local line="${line_prefix}${issue_part}${change_text}"
+  local change_entry_line="${line_prefix}${issue_part}${change_text}"
   local all_content
-  local main_content
 
   # Craft the content of the file
-  main_content="$( \
-    echo "${line}" 
+  all_content="$( \
+    echo "${change_entry_line}" 
     echo
     echo
     if [[ -n "${issue_title}" ]]; then
@@ -309,10 +308,6 @@ write_change_entry() {
       echo "# ********************************************************************************"
       echo
     fi
-  )"
-
-  all_content="$( \
-    echo -e "${main_content}" 
     echo "# All blank and comment lines will be ignored when imported into the CHANGELOG."
     echo "# Entries should be in GitHub flavour markdown and should be written on a single"
     echo "# line on the first line of the file with no hard breaks."
@@ -329,7 +324,7 @@ write_change_entry() {
 
   info "Writing file ${BLUE}${change_file}${GREEN}:"
   info "${DGREY}------------------------------------------------------------------------${NC}"
-  info "${YELLOW}${main_content}${NC}"
+  info "${YELLOW}${change_entry_line}${NC}"
   info "${DGREY}------------------------------------------------------------------------${NC}"
 
   echo -e "${all_content}" > "${change_file}"
