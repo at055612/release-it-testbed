@@ -902,8 +902,7 @@ main() {
     prepare_changelog_for_release "${most_recent_release_version}"
   else
     validation_exit "There are no unreleased changes in" \
-      "${BLUE}${unreleased_changes_dir}${GREEN} so" \
-      "assuming the changelog has been prepared for a release."
+      "${BLUE}${unreleased_changes_dir}${GREEN}, nothing to do."
     #if [[ -n "${requested_version}" ]]; then
       #version="${requested_version}"
     #else
