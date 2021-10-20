@@ -450,7 +450,10 @@ list_unreleased_changes() {
   if [[ "${found_change_files}" = true ]]; then
     #for filename in "${!MYMAP[@]}"; do echo $K; done
 
-    echo -e "${list_output%$'\n\n'}"
+    # Remove the trailing blank lines
+    list_output="$(echo -e "${list_output}" | head -n-2 )"
+
+    echo -e "${list_output}"
   else
     info "There are no unreleased changes"
   fi
