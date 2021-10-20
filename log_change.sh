@@ -447,8 +447,9 @@ list_unreleased_changes() {
           "${file}" \
         | sed \
           --regexp-extended \
-          "s/(Issue [*]+)(.*?)([*]+)/\1${BLUE}\2${YELLOW}\3/g"
+          "s/(Issue [*]+)(.*?)([*]+)/\1\2\3/g"
       )"
+          #"s/(Issue [*]+)(.*?)([*]+)/\1${BLUE}\2${YELLOW}\3/g"
 
       entry_map["${filename}"]="${change_entry_line}"
       list_output+="${BLUE}${filename}${NC}:\n${YELLOW}${change_entry_line}${NC}\n\n"
