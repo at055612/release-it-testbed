@@ -546,7 +546,9 @@ modify_changelog() {
     "/${UNRELEASED_HEADING_REGEX}/ r ${change_text_temp_file}" \
     "${changelog_file}"
 
-  rm "${change_text_temp_file}"
+  rm \
+    --force \
+    "${change_text_temp_file}"
 
   local compare_regex="^(\[Unreleased\]: https:\/\/github\.com\/${GITHUB_NAMESPACE}\/${GITHUB_REPO}\/compare\/)(.*)\.{3}(.*)$"
 
@@ -592,7 +594,9 @@ modify_changelog() {
     "${changelog_file}"
 
   info "Deleting change entry files in ${BLUE}${unreleased_changes_dir}${NC}"
-  rm "${unreleased_changes_dir}/*.md"
+  rm \
+    --force \
+    "${unreleased_changes_dir}"/*.md
 
   commit_changelog "${next_release_version}"
 }
