@@ -14,7 +14,7 @@
 
 set -euo pipefail
 
-IS_DEBUG=false
+IS_DEBUG=true
 UNRELEASED_DIR_NAME="unreleased_changes"
 
 setup_echo_colours() {
@@ -196,8 +196,7 @@ validate_git_issue() {
     debug_value "curl_return_code" "${curl_return_code}"
 
     if [[ "${curl_return_code}" -ne 0 ]]; then
-      error_exit "Issue ${BLUE}${git_issue}${NC} does not exist in this" \
-        "repository on GitHub"
+      error_exit "Issue ${BLUE}${git_issue}${NC} does not exist on GitHub"
     else
       info "Issue title: ${BLUE}${issue_title}${NC}"
     fi
@@ -215,36 +214,31 @@ is_existing_change_file_present() {
   local git_issue="$1"; shift
   local change_text="$1"; shift
 
-  if [[ "${git_issue}" != "0" ]]; then
-    local git_issue_str
-    git_issue_str="$(format_git_issue_for_filename "${git_issue}")"
+  local git_issue_str
+  git_issue_str="$(format_git_issue_for_filename "${git_issue}")"
 
-    local existing_file
-    existing_file="$( \
-      find \
-        "${unreleased_dir}/" \
-        -maxdepth 1 \
-        -name "*__${git_issue_str}.md" \
-        -print \
-        -quit)"
+  local existing_file
+  existing_file="$( \
+    find \
+      "${unreleased_dir}/" \
+      -maxdepth 1 \
+      -name "*__${git_issue_str}.md" \
+      -print \
+      -quit)"
 
-    debug_value "existing_file" "${existing_file}"
+  debug_value "existing_file" "${existing_file}"
 
-    if [[ -f "${existing_file}" ]]; then
-      # File exists for this issue so open it
-      info "A change entry file already exists for this issue"
+  if [[ -f "${existing_file}" ]]; then
+    # File exists for this issue so open it
+    info "A change entry file already exists for this issue"
 
-      open_file_in_editor "${existing_file}"
+    open_file_in_editor "${existing_file}"
 
-      validate_change_file "${existing_file}"
+    validate_change_file "${existing_file}"
 
-      return 0
-    else
-      debug "File does not exist"
-      return 1
-    fi
+    return 0
   else
-    debug "Issue 0 so don't check for existing file"
+    debug "File does not exist"
     return 1
   fi
 }
@@ -308,27 +302,24 @@ write_change_entry() {
     echo "${line}" 
     echo
     echo
-    echo '```'
     if [[ -n "${issue_title}" ]]; then
-      echo "********************************************************************************"
-      echo "Issue title: ${issue_title}"
-      echo "********************************************************************************"
+      echo "# ********************************************************************************"
+      echo "# Issue title: ${issue_title}"
+      echo "# ********************************************************************************"
       echo
     fi
-    echo "Only the first line of the file will be imported into the CHANGELOG."
-    echo "The change entry should be written in GitHub flavour markdown and should be "
-    echo "on a single line on the first line of the file with no hard breaks."
-    echo "All other lines will be ignored."
-    echo ""
-    echo "Examples of accptable entires are:"
-    echo ""
-    echo ""
-    echo "* Issue **1234** : A change with an associated GitHub issue in this repository"
-    echo ""
-    echo "* Issue **namespace/other-repo#1234** : A change with an associated GitHub issue in another repository"
-    echo ""
-    echo "* A change with no associated GitHub issue."
-    echo '```'
+    echo "# All blank and comment lines will be ignored when imported into the CHANGELOG."
+    echo "# Entries should be in GitHub flavour markdown and should be written on a single"
+    echo "# line on the first line of the file with no hard breaks."
+    echo "#"
+    echo "# Examples of accptable entires are:"
+    echo "#"
+    echo "#"
+    echo "# * Issue **1234** : A change with an associated GitHub issue in this repository"
+    echo "#"
+    echo "# * Issue **namespace/other-repo#1234** : A change with an associated GitHub issue in another repository"
+    echo "#"
+    echo "# * A change with no associated GitHub issue."
   )"
 
   info "Writing file ${BLUE}${change_file}${GREEN} with content:"

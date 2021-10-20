@@ -89,8 +89,6 @@ set -euo pipefail
 # File containing the configuration values for this script
 TAG_RELEASE_CONFIG_FILENAME='tag_release_config.env'
 
-UNRELEASED_CHANGES_COMMENT='DO NOT ADD CHANGES HERE - ADD THEM USING log_change.sh'
-
 # Configure the following for your github repository
 # ----------------------------------------------------------
 # Git tags should match this regex to be a release tag
@@ -372,7 +370,7 @@ validate_local_vs_remote() {
     read -rsp $'Press "y" to continue anyway, any other key to cancel.\n' -n1 keyPressed
 
     if [ "$keyPressed" = 'y' ] || [ "$keyPressed" = 'Y' ]; then
-      debug "User pressed Y"
+      do_tagging
     else
       echo
       info "Exiting without tagging a commit"
@@ -720,9 +718,9 @@ scan_change_files() {
   # Remove the last line which will be empty
   unreleased_changes_text="$(echo -e "${unreleased_changes_text}" | head -n-1)"
 
-  debug "#######################"
-  debug "${unreleased_changes_text}"
-  debug "#######################"
+  echo "#######################"
+  echo -e "${unreleased_changes_text}"
+  echo "#######################"
 }
 
 main() {
