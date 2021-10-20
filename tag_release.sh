@@ -480,6 +480,7 @@ modify_changelog() {
   # Remove the fenced block comment about not adding entries directly
   sed \
     --in-place'' \
+    --silent \
     '/^[~]{3}/,/^[~]{3}/!p' \
     "${changelog_file}"
 
