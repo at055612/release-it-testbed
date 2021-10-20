@@ -346,7 +346,7 @@ validate_for_uncommitted_work() {
       "\nCommit them before running this script or if the changes are from a failed" \
       "\nrun of this script then consider running" \
       "\n${BLUE}git checkout -f HEAD" \
-      "\n${GREEN} to restore your local repo.${NC}"
+      "\n${GREEN}to restore your local repo.${NC}"
   fi
 }
 
