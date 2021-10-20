@@ -433,6 +433,7 @@ list_unreleased_changes() {
 
   for file in "${unreleased_dir}/"*.md; do
     if [[ -f "${file}" ]]; then
+      found_change_files=true
       local filename
       filename="$(basename "${file}" )"
 
@@ -440,7 +441,14 @@ list_unreleased_changes() {
       max_filename_len=$(( filename_len > max_filename_len ? filename_len : max_filename_len))
 
       local change_entry_line
-      change_entry_line="$(head -n1 "${file}" )"
+      change_entry_line="$( \
+        head \
+          -n1 \
+          "${file}" \
+        | sed \
+          --regexp-extended \
+          "s/(Issue \*\*)(.*?)(\*\*)/\1${BLUE}\2${YELLOW}\3/g"
+      )"
 
       entry_map["${filename}"]="${change_entry_line}"
       list_output+="${BLUE}${filename}${NC}:\n${YELLOW}${change_entry_line}${NC}\n\n"
