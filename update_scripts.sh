@@ -50,11 +50,9 @@ main() {
 
   cp ../release-it/log_change.sh ./
   cp ../release-it/tag_release.sh ./
-  cp ../release-it/tag_release_config.env ./
 
   git add log_change.sh
   git add tag_release.sh
-  git add tag_release_config.env
 
   git commit -m "Update scripts"
 
