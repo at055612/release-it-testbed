@@ -563,13 +563,17 @@ modify_changelog() {
       "${changelog_file}"
   fi
 
-  # Tidy up any instances of 3 or more blank lines replacing them
+  # Treats the whole file as one big line which is a bit sub-prime
+  # for a big changelog, but not a massive issue.
+  # 1st expr - tidy up any instances of 3 or more blank lines replacing them
   # with 2 blank lines
+  # 2nd expr - ensure all headings are preceeded with 2 blank lines
   sed \
     --regexp-extended \
     --in-place'' \
     --null-data \
-    's/\n{4,}/\n\n\n/g' \
+    --expression 's/\n{4,}/\n\n\n/g' \
+    --expression 's/\n*(^## )/\n\n\n\1/g' \
     "${changelog_file}"
 
   commit_changelog "${next_release_version}"
