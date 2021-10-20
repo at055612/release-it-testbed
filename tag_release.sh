@@ -114,7 +114,7 @@ PREVIOUS_TAG_EXAMPLE="${TAG_EXAMPLE//9/8}"
 CHANGELOG_FILENAME='CHANGELOG.md'
 # The path to the directory containing the unreleased changes
 # relative to the repo root
-UNRELEASED_CHANGES_DIR='unreleased_changes'
+UNRELEASED_CHANGES_REL_DIR='unreleased_changes'
 # The namespace/usser on github, i.e. github.com/<namespace>, should be set in tag_release_config.env
 GITHUB_NAMESPACE=
 # The name of the git repository on github, should be set in tag_release_config.env
@@ -422,13 +422,28 @@ determine_version_to_release() {
 commit_changelog() {
   local next_release_version="$1"; shift
 
-  local changed_file_count
-  changed_file_count="$(git status --porcelain | wc -l)"
+  # Expecting the git status output to look something like:
 
-  if [ "${changed_file_count}" -gt 1 ]; then
+  # M CHANGELOG.md
+  # D unreleased_changes/20211018_163800_451__0.md
+  # D unreleased_changes/20211018_163803_736__0.md
+
+  # so ignore all the ones we expect and see if there is anything else changed
+
+  local changed_files
+  changed_files="$( \
+    git \
+      status \
+      --porcelain \
+    | grep \
+      --invert-match \
+      --regexp "M ${CHANGELOG_FILENAME}" \
+      --regexp "D ${UNRELEASED_CHANGES_REL_DIR}/.*\.md" \
+  )"
+
+  if [[ -n "${changed_files}" ]]; then
     echo 
-    error "Expecting only ${BLUE}${CHANGELOG_FILENAME}${GREEN} to have" \
-      "changed in git status.\nThe following uncommitted changes exist:"
+    error "Unexpected local changes in git status:"
 
     echo 
     echo -e "${DGREY}------------------------------------------------------------------------${NC}"
@@ -576,6 +591,9 @@ modify_changelog() {
     --expression 's/\n*(^## )/\n\n\n\1/g' \
     "${changelog_file}"
 
+  info "Deleting change entry files in ${BLUE}${unreleased_changes_dir}${NC}"
+  rm "${unreleased_changes_dir}/*.md"
+
   commit_changelog "${next_release_version}"
 }
 
@@ -716,7 +734,7 @@ create_config_file() {
 
   # The path to the directory containing the unreleased changes
   # relative to the repo root
-  #UNRELEASED_CHANGES_DIR='unreleased_changes'
+  #UNRELEASED_CHANGES_REL_DIR='unreleased_changes'
 
   # If you want to run any validation that is specific to this repo then uncomment
   # this function and implement some validation
@@ -814,7 +832,7 @@ main() {
   COMPARE_URL_EXAMPLE="${GITHUB_URL_BASE}/compare/${PREVIOUS_TAG_EXAMPLE}...${TAG_EXAMPLE}"
 
   local changelog_file="${repo_root}/${CHANGELOG_FILENAME}"
-  local unreleased_changes_dir="${repo_root}/${UNRELEASED_CHANGES_DIR}"
+  local unreleased_changes_dir="${repo_root}/${UNRELEASED_CHANGES_REL_DIR}"
 
   if [ ! -f "${tag_release_config_file}" ]; then
     error_exit "Can't find file ${BLUE}${tag_release_config_file}${NC}"
