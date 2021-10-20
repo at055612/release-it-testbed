@@ -432,10 +432,11 @@ commit_changelog() {
 
   echo x
 
+  set -x
+
   local changed_files
   changed_files="$( \
-    git \
-      status \
+    git status \
       --porcelain \
     | grep \
       --invert-match \
