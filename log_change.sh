@@ -328,17 +328,17 @@ write_change_entry() {
     # shellcheck disable=SC2016
     {
       if [[ -n "${issue_title}" ]]; then
-        echo '```'
+        echo '```bash'
         echo "# ********************************************************************************"
         echo "# Issue title: ${issue_title}"
         echo "# ********************************************************************************"
         echo '```'
         echo
       fi
-      echo '```'
-      echo "# All blank and comment lines will be ignored when imported into the CHANGELOG."
+      echo '```bash'
+      echo "# Only the top line will be included in the CHANGELOG."
       echo "# Entries should be in GitHub flavour markdown and should be written on a single"
-      echo "# line on the first line of the file with no hard breaks."
+      echo "# line with no hard breaks."
       echo "#"
       echo "# Examples of accptable entires are:"
       echo "#"
