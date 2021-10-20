@@ -343,7 +343,9 @@ validate_for_uncommitted_work() {
   if [ "$(git status --porcelain 2>/dev/null | wc -l)" -ne 0 ]; then
     
     validation_exit "There are uncommitted changes or untracked files." \
-      "Commit them before running this script.${NC}"
+      "\nCommit them before running this script" \
+      "\nor if the changes are from a failed run of this scrtipt then consider running" \
+      "\n${BLUE}git checkout -f HEAD${GREEN} to restore your local repo.${NC}"
   fi
 }
 
