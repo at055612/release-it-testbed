@@ -215,8 +215,8 @@ validate_git_issue() {
       if [[ "${http_status_code}" = "404" ]]; then
         error_exit "Issue ${BLUE}${git_issue}${NC} does not exist on GitHub"
       else
-        warn "Unable to obtain issue title for issue ${BLUE}${issue_number}${YELLOW}" \
-          "from GitHub (HTTP status: ${BLUE}${http_status_code}${YELLOW})"
+        warn "Unable to obtain issue title for issue ${BLUE}${issue_number}${NC}" \
+          "from GitHub (HTTP status: ${BLUE}${http_status_code}${NC})"
         issue_title=""
       fi
     else
