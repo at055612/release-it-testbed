@@ -84,7 +84,7 @@
 # v1.1 2019-10-04 Refactor to use tag_release_config.env
 # v1.2 2021-05-05 Add changelog updating
 
-set -euo pipefail
+set -eo pipefail
 
 # File containing the configuration values for this script
 TAG_RELEASE_CONFIG_FILENAME='tag_release_config.env'
@@ -718,9 +718,12 @@ scan_change_files() {
   # Remove the last line which will be empty
   unreleased_changes_text="$(echo -e "${unreleased_changes_text}" | head -n-1)"
 
-  echo "#######################"
-  echo -e "${unreleased_changes_text}"
-  echo "#######################"
+  if [ "${IS_DEBUG_ENABLED:-false}" = true ]; then
+    debug "${unreleased_changes_text}:"
+    debug "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+    debug "${unreleased_changes_text}"
+    debug "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+  fi
 }
 
 main() {
