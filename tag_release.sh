@@ -89,6 +89,9 @@ set -eo pipefail
 # File containing the configuration values for this script
 TAG_RELEASE_CONFIG_FILENAME='tag_release_config.env'
 
+# The name of the script to use to log change entries
+LOG_CHANGE_SCRIPT_NAME="log_change.sh"
+
 # Configure the following for your github repository
 # ----------------------------------------------------------
 # Git tags should match this regex to be a release tag
@@ -475,32 +478,47 @@ modify_changelog() {
   new_heading="## [${next_release_version}] - ${curr_date}"
 
   # Remove the fenced block comment about not adding entries directly
-  #sed \
-    #--in-place'' \
-    #'/^[~]{3}/,/^[~]{3}/!p' \
-    #"${changelog_file}"
-
+  sed \
+    --in-place'' \
+    '/^[~]{3}/,/^[~]{3}/!p' \
+    "${changelog_file}"
 
   # Add the new release heading after the [Unreleased] heading
   # along with the unreleased change entries
   # plus some new lines \\\n\n seems to provide two new lines
-  sed \
-    --in-place'' \
-    "/${UNRELEASED_HEADING_REGEX}/ a \\\n\n${new_heading}" \
-    "${changelog_file}"
+  #sed \
+    #--in-place'' \
+    #"/${UNRELEASED_HEADING_REGEX}/ a \\\n\n${new_heading}" \
+    #"${changelog_file}"
 
   local change_text_temp_file
   change_text_temp_file=$(mktemp --suffix=_tag_release)
 
-  # Write our unreleased change entries to a temp file
+  # Write our unreleased change entries and the new heading to a temp file
   # with a blank line above
-  echo -e "\n${unreleased_changes_text}" > "${change_text_temp_file}"
+  {
+    echo -e 
+    echo -e "~~~"
+    echo -e "DO NOT ADD CHANGES HERE - ADD THEM USING ${LOG_CHANGE_SCRIPT_NAME}"
+    echo -e "~~~"
+    echo -e
+    echo -e "${new_heading}"
+    echo -e
+    echo -e "${unreleased_changes_text}"
+  } > "${change_text_temp_file}"
 
-  # Now add contents of the temp file below the new version heading
+  if [ "${IS_DEBUG_ENABLED:-false}" = true ]; then
+    debug "Catting temp file ${change_text_temp_file}"
+    debug "-------------------------------"
+    cat "${change_text_temp_file}"
+    debug "-------------------------------"
+  fi
+
+  # Now add contents of the temp file below the existing Unreleased heading
   sed \
     --regexp-extended \
     --in-place'' \
-    "/## \[${next_release_version}\]/ r ${change_text_temp_file}" \
+    "/${UNRELEASED_HEADING_REGEX}/ r ${change_text_temp_file}" \
     "${changelog_file}"
 
   rm "${change_text_temp_file}"
@@ -562,7 +580,7 @@ prepare_changelog_for_release() {
   local next_release_version_guess=""
 
   info "These are the unreleased changes that will be added to the CHANGELOG:" \
-    "\n${YELLOW}------------------------------------" \
+    "\n\n${YELLOW}------------------------------------" \
     "\n${unreleased_changes_text}" \
     "\n------------------------------------${NC}"
 
@@ -821,7 +839,7 @@ main() {
 
   if [[ "${are_unreleased_issues_in_changelog}" = true ]]; then
     error_exit "There are unreleased change entries in the CHANGELOG.\n" \
-      "Changed should only be added using log_change.sh"
+      "Changed should only be added using ${LOG_CHANGE_SCRIPT_NAME}"
   fi
 
   if [[ "${are_unreleased_issues_in_files}" = true ]]; then
