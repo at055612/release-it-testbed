@@ -447,7 +447,7 @@ commit_changelog() {
 
     echo 
     echo -e "${DGREY}------------------------------------------------------------------------${NC}"
-    git status --porcelain 
+    echo -e "${DGREY}${changed_files}${NC}"
     echo -e "${DGREY}------------------------------------------------------------------------${NC}"
     exit 1
   fi
@@ -474,6 +474,8 @@ commit_changelog() {
 
   info "Adding ${BLUE}${CHANGELOG_FILENAME}${GREEN} to the git index."
   git add "${changelog_file}"
+  info "Adding deleted change entry files to the git index."
+  git add "./${UNRELEASED_CHANGES_REL_DIR}/*.md"
 
   info "Committing the staged changes"
   git commit -m "Update CHANGELOG for release ${next_release_version}"
