@@ -474,11 +474,18 @@ modify_changelog() {
   local new_heading
   new_heading="## [${next_release_version}] - ${curr_date}"
 
+  # Remove the fenced block comment about not adding entries directly
+  #sed \
+    #--in-place'' \
+    #'/^[~]{3}/,/^[~]{3}/!p' \
+    #"${changelog_file}"
+
   # Add the new release heading after the [Unreleased] heading
+  # along with the unreleased change entries
   # plus some new lines \\\n\n seems to provide two new lines
   sed \
-    -i'' \
-    "/${UNRELEASED_HEADING_REGEX}/a \\\n\n${new_heading}" \
+    --in-place'' \
+    "/${UNRELEASED_HEADING_REGEX}/a \\\n\n${new_heading}\\\n\n${unreleased_changes_text}" \
     "${changelog_file}"
 
   local compare_regex="^(\[Unreleased\]: https:\/\/github\.com\/${GITHUB_NAMESPACE}\/${GITHUB_REPO}\/compare\/)(.*)\.{3}(.*)$"
@@ -488,8 +495,8 @@ modify_changelog() {
     # Change the from version in the [Unreleased] link
     debug "Modifying unreleased link"
     sed \
-      -E \
-      -i'' \
+      --regexp-extended \
+      --in-place'' \
       "s/${compare_regex}/\1${next_release_version}...\3/" \
       "${changelog_file}"
   else
@@ -505,7 +512,7 @@ modify_changelog() {
     new_link_line="[${next_release_version}]: ${GITHUB_URL_BASE}/compare/${prev_release_version}...${next_release_version}"
     debug "Appending compare link"
     sed \
-      -i'' \
+      --in-place'' \
       "/${UNRELEASED_LINK_REGEX}/a ${new_link_line}" \
       "${changelog_file}"
   fi
@@ -537,11 +544,8 @@ prepare_changelog_for_release() {
   local next_release_version=""
   local next_release_version_guess=""
 
-  info "There are unrelased changes in the changelog:\n"
-
-  for line in "${unreleased_changes[@]}"; do
-    echo -e "  ${YELLOW}${line}${NC}"
-  done
+  info "These are the unreleased changes that will be added to the CHANGELOG:\n" \
+    "${unreleased_changes_text}"
 
   info "\nThe changelog needs to be modified for a new release" \
     "version."
@@ -556,12 +560,14 @@ prepare_changelog_for_release() {
       local next_patch_part=$((prev_patch_part + 1))
 
       next_release_version_guess="$( echo "${prev_release_version}" \
-        | sed -E "s/\.[0-9]+$/\.${next_patch_part}/" )"
+        | sed \
+          --regexp-extended \
+          "s/\.[0-9]+$/\.${next_patch_part}/" \
+      )"
 
       debug "next_release_version_guess: ${next_release_version_guess}"
     fi
   fi
-
 
   if [ -n "${requested_version}" ]; then
     # User gave us the version via the arg so no need to prompt
@@ -593,7 +599,7 @@ parse_changelog() {
       && -z "${most_recent_release_version}" \
       && "${line}" =~ ${ISSUE_LINE_REGEX} ]]; then
       #debug "line: ${line}"
-      are_unreleased_issues=true
+      are_unreleased_issues_in_changelog=true
       unreleased_changes+=( "${line}" )
     fi
 
@@ -611,7 +617,7 @@ parse_changelog() {
 
   done < "${changelog_file}"
 
-  debug "are_unreleased_issues: ${are_unreleased_issues}"
+  debug "are_unreleased_issues_in_changelog: ${are_unreleased_issues_in_changelog}"
   debug "most_recent_release_version: ${most_recent_release_version}"
   debug "seen_unreleased_heading: ${seen_unreleased_heading}"
 }
@@ -707,7 +713,7 @@ scan_change_files() {
 
   for change_file in "${unreleased_changes_dir}/"*_*__*.md; do
     debug "change_file: ${change_file}"
-    are_unreleased_issues=true
+    are_unreleased_issues_in_files=true
 
     local change_line
     change_line="$(head -n1 "${change_file}")"
@@ -718,12 +724,7 @@ scan_change_files() {
   # Remove the last line which will be empty
   unreleased_changes_text="$(echo -e "${unreleased_changes_text}" | head -n-1)"
 
-  if [ "${IS_DEBUG_ENABLED:-false}" = true ]; then
-    debug "${unreleased_changes_text}:"
-    debug "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-    debug "${unreleased_changes_text}"
-    debug "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-  fi
+  debug "unreleased_changes_text:\n${unreleased_changes_text}"
 }
 
 main() {
@@ -776,7 +777,8 @@ main() {
   local requested_version=""
   local version=""
   local unreleased_changes=()
-  local are_unreleased_issues=false
+  local are_unreleased_issues_in_changelog=false
+  local are_unreleased_issues_in_files=false
   local unreleased_changes_text=""
   local curr_date
   curr_date="$(date +%Y-%m-%d)"
@@ -798,7 +800,12 @@ main() {
 
   parse_changelog
 
-  if [[ "${are_unreleased_issues}" = true ]]; then
+  if [[ "${are_unreleased_issues_in_changelog}" = true ]]; then
+    error_exit "There are unreleased change entries in the CHANGELOG.\n" \
+      "Changed should only be added using log_change.sh"
+  fi
+
+  if [[ "${are_unreleased_issues_in_files}" = true ]]; then
     # Changelog contains changes that are unreleased so need to
     # set up the new release heading in it.
     prepare_changelog_for_release "${most_recent_release_version}"
