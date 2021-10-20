@@ -22,6 +22,6 @@ DO NOT ADD CHANGES HERE - ADD THEM USING log_change.sh
 * Initial Release
 
 
-[Unreleased]: https://github.com/gchq/stroom/compare/v1.0.1...HEAD
-[v1.0.1]: https://github.com/gchq/stroom/compare/v1.0.0...v1.0.1
-[v1.0.0]: https://github.com/gchq/stroom/compare/v1.0.0...v1.0.0
+[Unreleased]: https://github.com/at055612/release-it-testbed/compare/v1.0.1...HEAD
+[v1.0.1]: https://github.com/at055612/release-it-testbed/compare/v1.0.0...v1.0.1
+[v1.0.0]: https://github.com/at055612/release-it-testbed/compare/v1.0.0...v1.0.0
