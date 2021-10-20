@@ -429,11 +429,14 @@ list_unreleased_changes() {
 
   for file in "${unreleased_dir}/"*.md; do
     if [[ -f "${file}" ]]; then
+      local filename
+      filename="$(basename "${file}" )"
+
       found_change_files=true
       local change_entry_line
       change_entry_line="$(head -n1 "${file}" )"
 
-      list_output+="${file}: ${change_entry_line}\n"
+      list_output+="${filename}: ${change_entry_line}\n"
     fi
   done
 
