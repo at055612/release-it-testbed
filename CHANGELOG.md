@@ -12,6 +12,17 @@ DO NOT ADD CHANGES HERE - ADD THEM USING log_change.sh
 ~~~
 
 
+## [v1.0.7] - 2021-10-20
+
+* Fix a typo
+
+* Fix another typo
+
+* Issue **#1** : Fix problem A
+
+* Issue **gchq/stroom#2424** : Fix a thing that will fix stroom. This is a really long change entry to text line wrapping. blah blah blah blah blah blah blah blah and so on and on and on, etc. etc.
+
+
 ## [v1.0.6] - 2021-10-20
 
 * Fix a typo
@@ -65,7 +76,8 @@ DO NOT ADD CHANGES HERE - ADD THEM USING log_change.sh
 * Initial Release
 
 
-[Unreleased]: https://github.com/at055612/release-it-testbed/compare/v1.0.6...HEAD
+[Unreleased]: https://github.com/at055612/release-it-testbed/compare/v1.0.7...HEAD
+[v1.0.7]: https://github.com/at055612/release-it-testbed/compare/v1.0.6...v1.0.7
 [v1.0.6]: https://github.com/at055612/release-it-testbed/compare/v1.0.5...v1.0.6
 [v1.0.5]: https://github.com/at055612/release-it-testbed/compare/v1.0.4...v1.0.5
 [v1.0.4]: https://github.com/at055612/release-it-testbed/compare/v1.0.3...v1.0.4
