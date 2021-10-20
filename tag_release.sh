@@ -569,7 +569,7 @@ modify_changelog() {
     --regexp-extended \
     --in-place'' \
     --null-data \
-    's/\n{4,}/\n\n/g' \
+    's/\n{4,}/\n\n\n/g' \
     "${changelog_file}"
 
   commit_changelog "${next_release_version}"
