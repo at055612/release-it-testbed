@@ -16,6 +16,8 @@
 # limitations under the License.
 # **********************************************************************
 
+# Version: <BUILD_VERSION>
+# Date: <BUILD_DATE>
 
 # This script is for tagging a git repository for the purpose of driving a
 # separate release process from that tagged commit. It also updates the 
@@ -121,6 +123,8 @@ GITHUB_NAMESPACE=
 GITHUB_REPO=
 # The name of the git remote repo that the branch is tracking against.
 GIT_REMOTE_NAME='origin'
+# The name of the branch to compare unreleased changes to
+UNRELEASED_CHANGES_COMPARE_BRANCH='master'
 # ----------------------------------------------------------
 
 setup_echo_colours() {
@@ -223,8 +227,13 @@ do_release() {
   local commit_msg
   # delete all lines up to and including the desired version header
   # then output all lines until quitting when you hit the next 
-  # version header
-  commit_msg="$(sed "1,/^\s*##\s*\[${version}\]/d;/## \[/Q" "${changelog_file}")"
+  # version header ('## [' or '[')
+  commit_msg="$( \
+    sed  \
+      --regexp-extended \
+      "1,/^\s*##\s*\[${version}\]/d;/^(## )?\[/Q"  \
+      "${changelog_file}" \
+    )"
 
   # Add the release version as the top line of the commit msg, followed by
   # two new lines
@@ -253,6 +262,34 @@ do_release() {
   fi
 }
 
+init_changelog_file() {
+  debug "init_changelog_file() called"
+
+  if [ ! -f "${changelog_file}" ]; then
+    info "Creating skeleton ${BLUE}${CHANGELOG_FILENAME}${GREEN} file"
+
+    {
+      echo -e "# Change Log"
+      echo -e "All notable changes to this project will be documented in this file."
+      echo -e
+      echo -e "The format is based on [Keep a Changelog](http://keepachangelog.com/) "
+      echo -e "and this project adheres to [Semantic Versioning](http://semver.org/)."
+      echo -e
+      echo -e
+      echo -e "## [Unreleased]"
+      echo -e 
+      echo -e "~~~"
+      echo -e "DO NOT ADD CHANGES HERE - ADD THEM USING log_change.sh"
+      echo -e "~~~"
+      echo -e
+      echo -e
+    } > "${changelog_file}"
+
+    info "You should now add, commit and push the new CHANGELOG file."
+    exit 0
+  fi
+}
+
 validate_version_string() {
   if [[ ! "${version}" =~ ${RELEASE_VERSION_REGEX} ]]; then
       local msgs=("Version [${BLUE}${version}${GREEN}] does not match the release"
@@ -265,15 +302,6 @@ validate_version_string() {
     fi
   else
     return 0
-  fi
-}
-
-validate_changelog_exists() {
-  debug "validate_changelog_exists() called"
-
-  if [ ! -f "${changelog_file}" ]; then
-    error_exit "The file ${BLUE}${changelog_file}${GREEN} does not exist in the" \
-      "current directory.${NC}"
   fi
 }
 
@@ -569,21 +597,25 @@ modify_changelog() {
   else
     # No link so add one to the end
     debug "Appending unreleased link"
-    echo -e "\n[Unreleased]: ${GITHUB_URL_BASE}/compare/${next_release_version}...master" \
+    echo -e "\n[Unreleased]: ${GITHUB_URL_BASE}/compare/${next_release_version}...${UNRELEASED_CHANGES_COMPARE_BRANCH}" \
       >> "${changelog_file}"
   fi
 
+  local new_link_line
   if [ -n "${prev_release_version}" ]; then
     # We have a prev release to compare to so add in the compare link for 
     # prev release to next release
     new_link_line="[${next_release_version}]: ${GITHUB_URL_BASE}/compare/${prev_release_version}...${next_release_version}"
-    debug "Appending compare link"
-    sed \
-      --regexp-extended \
-      --in-place'' \
-      "/${UNRELEASED_LINK_REGEX}/a ${new_link_line}" \
-      "${changelog_file}"
+  else
+    new_link_line="[${next_release_version}]: ${GITHUB_URL_BASE}/compare/${next_release_version}...${next_release_version}"
   fi
+
+  debug "Appending compare link"
+  sed \
+    --regexp-extended \
+    --in-place'' \
+    "/${UNRELEASED_LINK_REGEX}/a ${new_link_line}" \
+    "${changelog_file}"
 
   # Treats the whole file as one big line which is a bit sub-prime
   # for a big changelog, but not a massive issue.
@@ -744,6 +776,9 @@ create_config_file() {
   # relative to the repo root
   #UNRELEASED_CHANGES_REL_DIR='unreleased_changes'
 
+  # The name of the branch to compare unreleased changes to
+  #UNRELEASED_CHANGES_COMPARE_BRANCH='master'
+
   # If you want to run any validation that is specific to this repo then uncomment
   # this function and implement some validation
   #apply_custom_validation() {
@@ -874,8 +909,9 @@ main() {
   local curr_date
   curr_date="$(date +%Y-%m-%d)"
 
+  init_changelog_file
+
   # Initial validation before we start modifying the changelog
-  validate_changelog_exists
   validate_unreleased_heading_in_changelog
   validate_for_uncommitted_work
   validate_local_vs_remote
