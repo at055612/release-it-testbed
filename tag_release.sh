@@ -483,6 +483,13 @@ modify_changelog() {
     '/^[~]{3}/,/^[~]{3}/!p' \
     "${changelog_file}"
 
+  if [ "${IS_DEBUG_ENABLED:-false}" = true ]; then
+    debug "Catting CHANGELOG"
+    debug "-------------------------------"
+    cat "${changelog_file}"
+    debug "-------------------------------"
+  fi
+
   # Add the new release heading after the [Unreleased] heading
   # along with the unreleased change entries
   # plus some new lines \\\n\n seems to provide two new lines
@@ -501,6 +508,7 @@ modify_changelog() {
     echo -e "~~~"
     echo -e "DO NOT ADD CHANGES HERE - ADD THEM USING ${LOG_CHANGE_SCRIPT_NAME}"
     echo -e "~~~"
+    echo -e
     echo -e
     echo -e "${new_heading}"
     echo -e
