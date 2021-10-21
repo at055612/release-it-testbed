@@ -414,6 +414,8 @@ validate_issue_line() {
   local simple_issue_line_regex="^\* [A-Z]"
   local issue_line_regex="^\* (Issue \*\*([a-zA-Z0-9_\-.]+\/[a-zA-Z0-9_\-.]+\#[0-9]+|#[0-9]+)\*\* : )?[A-Z][\w .!?\`\"'*\-]+$"
 
+  debug "Validating file ${change_file}"
+
   local issue_line_count
   issue_line_count="$( \
     grep \
@@ -421,6 +423,8 @@ validate_issue_line() {
       --perl-regexp \
       "${simple_issue_line_regex}"
     )"
+
+  debug_value "issue_line_count" "${issue_line_count}"
 
   if [[ "${issue_line_count}" -eq 0 ]]; then
       error_exit "No change entry line found in ${BLUE}${change_file}${NC}"
