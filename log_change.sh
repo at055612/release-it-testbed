@@ -421,7 +421,8 @@ validate_issue_line() {
     grep \
       --count \
       --perl-regexp \
-      "${simple_issue_line_regex}"
+      "${simple_issue_line_regex}" \
+      "${change_file}"
     )"
 
   debug_value "issue_line_count" "${issue_line_count}"
