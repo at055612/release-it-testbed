@@ -249,10 +249,12 @@ is_existing_change_file_present() {
   #)"
 
   for existing_file in "${unreleased_dir}"/*__"${git_issue_str}".md; do
-    debug_value "existing_file" "${existing_file}"
-    local filename
-    filename="$(basename "${existing_file}" )"
-    existing_files+=( "${filename}" )
+    if [[ -f "${existing_file}" ]]; then
+      debug_value "existing_file" "${existing_file}"
+      local filename
+      filename="$(basename "${existing_file}" )"
+      existing_files+=( "${filename}" )
+    fi
   done
 
   debug_value "existing_files" "${existing_files[*]}"
