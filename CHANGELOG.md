@@ -7,9 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
-~~~
-DO NOT ADD CHANGES HERE - ADD THEM USING log_change.sh
-~~~
+* A change in the changelog
 
 
 ## [v1.0.8] - 2021-10-21
