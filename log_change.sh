@@ -240,14 +240,13 @@ is_existing_change_file_present() {
   git_issue_str="$(format_git_issue_for_filename "${git_issue}")"
 
   local existing_files=()
-  existing_files="$( \
-    find \
-      "${unreleased_dir}/" \
-      -maxdepth 1 \
-      -name "*__${git_issue_str}.md" \
-      -print \
-  )"
-  debug_value "existing_files" "${existing_files[*]}"
+  #existing_files="$( \
+    #find \
+      #"${unreleased_dir}/" \
+      #-maxdepth 1 \
+      #-name "*__${git_issue_str}.md" \
+      #-print \
+  #)"
 
   for existing_file in "${unreleased_dir}"/*__"${git_issue_str}".md; do
     debug_value "existing_file" "${existing_file}"
@@ -255,6 +254,8 @@ is_existing_change_file_present() {
     filename="$(basename "${existing_file}" )"
     existing_files+=( "${filename}" )
   done
+
+  debug_value "existing_files" "${existing_files[*]}"
 
   local existing_file_count="${#existing_files[@]}"
   debug_value "existing_file_count" "${existing_file_count}"
