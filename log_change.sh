@@ -327,25 +327,25 @@ write_change_entry() {
     echo
     # shellcheck disable=SC2016
     {
-      echo '```bash'
+      echo '```'
       if [[ -n "${issue_title}" ]]; then
-        echo "# ********************************************************************************"
-        echo "# Issue title: ${issue_title}"
-        echo "# ********************************************************************************"
+        echo "********************************************************************************"
+        echo "Issue title: ${issue_title}"
+        echo "********************************************************************************"
         echo
       fi
-      echo "# Only the top line will be included in the CHANGELOG."
-      echo "# Entries should be in GitHub flavour markdown and should be written on a single"
-      echo "# line with no hard breaks."
-      echo "#"
-      echo "# Examples of accptable entires are:"
-      echo "#"
-      echo "#"
-      echo "# * Issue **1234** : A change with an associated GitHub issue in this repository"
-      echo "#"
-      echo "# * Issue **namespace/other-repo#1234** : A change with an associated GitHub issue in another repository"
-      echo "#"
-      echo "# * A change with no associated GitHub issue."
+      echo "Only the top line will be included in the CHANGELOG."
+      echo "Entries should be in GitHub flavour markdown and should be written on a single"
+      echo "line with no hard breaks."
+      echo ""
+      echo "Examples of accptable entires are:"
+      echo ""
+      echo ""
+      echo "* Issue **1234** : A change with an associated GitHub issue in this repository"
+      echo ""
+      echo "* Issue **namespace/other-repo#1234** : A change with an associated GitHub issue in another repository"
+      echo ""
+      echo "* A change with no associated GitHub issue."
       echo '```'
     }
   )"
