@@ -672,10 +672,21 @@ prepare_changelog_for_release() {
   local next_release_version=""
   local next_release_version_guess=""
 
-  info "These are the unreleased changes that will be added to the CHANGELOG:" \
-    "\n\n${DGREY}------------------------------------------------------------------------" \
-    "\n${YELLOW}${unreleased_changes_text}" \
-    "\n${DGREY}------------------------------------------------------------------------${NC}" \
+  if [[ -n "${unreleased_changes_text}" ]]; then
+    info "These are the unreleased change file entries that will be added to the CHANGELOG:" \
+      "\n\n${DGREY}------------------------------------------------------------------------" \
+      "\n${YELLOW}${unreleased_changes_text}" \
+      "\n${DGREY}------------------------------------------------------------------------${NC}"
+  fi
+
+  if [[ "${#unreleased_changes[@]}" -gt 0 ]]; then
+    info "These are the unreleased changes already in the CHANGELOG:"
+    info "\n${DGREY}------------------------------------------------------------------------"
+    for change_text in "${unreleased_changes[@]}"; do
+      info "${YELLOW}${change_text}${NC}"
+    done
+    info "${DGREY}------------------------------------------------------------------------"
+  fi
 
   info "\nThe changelog will be modified for the new release version."
 
