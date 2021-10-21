@@ -239,29 +239,56 @@ is_existing_change_file_present() {
   local git_issue_str
   git_issue_str="$(format_git_issue_for_filename "${git_issue}")"
 
-  local existing_file
-  existing_file="$( \
+  local existing_files=()
+  existing_files="$( \
     find \
       "${unreleased_dir}/" \
       -maxdepth 1 \
       -name "*__${git_issue_str}.md" \
       -print \
-      -quit)"
+  )"
 
-  debug_value "existing_file" "${existing_file}"
+  for existing_file in "${unreleased_dir}"/*__"${git_issue_str}".md; do
+    debug_value "existing_file" "${existing_file}"
+    local filename
+    filename="$(basename "${existing_file}" )"
+    existing_files+=( "${filename}" )
+  done
 
-  if [[ -f "${existing_file}" ]]; then
+  local existing_file_count="${#existing_files[@]}"
+
+  if [[ "${existing_file_count}" -eq 0 ]]; then
+    debug "File does not exist"
+    return 1
+  elif [[ "${existing_file_count}" -eq 1 ]]; then
+    debug "One file exists: ${existing_files[0]}"
     # File exists for this issue so open it
-    info "A change entry file already exists for this issue"
+    info "A change entry file (${BLUE}${existing_files[0]}${GREEN}) already exists for this issue"
 
-    open_file_in_editor "${existing_file}"
-
-    validate_issue_line "${existing_file}"
+    echo "Do you want to open this file or create a new change file for the issue?"
+    select user_input in  "Create new file" "Open existing file"; do
+      case $user_input in
+        "Create new file" ) 
+          write_change_entry "${git_issue}" "${change_text:-}"
+          break;;
+        "Open existing file" ) 
+          open_file_in_editor "${existing_file}"
+          validate_issue_line "${existing_file}"
+          break;;
+        *) 
+          echo "Invalid option. Try another one."
+          continue;;
+      esac
+    done
 
     return 0
   else
-    debug "File does not exist"
-    return 1
+    # Multiple files exist for this 
+    debug "${existing_file_count} files exist"
+
+    # TODO
+
+    return 0
   fi
 }
 
@@ -393,8 +420,6 @@ open_file_in_editor() {
   # Open the user's preferred editor or vi/vim if not set
   "${editor}" "${file_to_open}"
 
-  echo ":::::::::::::::"
-
   local md5_after
   md5_after="$(md5sum "${file_to_open}" | cut -d' ' -f1)"
 
@@ -411,7 +436,11 @@ open_file_in_editor() {
 
 validate_issue_line() {
   local change_file="$1"; shift
+  # Used to look for lines that might be a change entry
   local simple_issue_line_regex="^\* [A-Z]"
+
+  # A more complex regex to make sure the change entries are a consistent format
+  # https://regex101.com/r/fOO8lQ/1
   local issue_line_regex="^\* (Issue \*\*([a-zA-Z0-9_\-.]+\/[a-zA-Z0-9_\-.]+\#[0-9]+|#[0-9]+)\*\* : )?[A-Z][\w .!?\`\"'*\-]+$"
 
   debug "Validating file ${change_file}"
@@ -447,50 +476,6 @@ validate_issue_line() {
     fi
   fi
 }
-
-#validate_change_file() {
-
-  #local change_file="$1"; shift
-  ## https://regex101.com/r/cSfrND/1 
-  #local regex='^(#|(# |\* Issue \*\*([a-zA-Z0-9_\-.]+\/[a-zA-Z0-9_\-.]+\#[0-9]+|[0-9]+)\*\* : |\* ).+)$'
-  #local bad_lines=()
-
-  #local bad_lines
-  #bad_lines="$( \
-    #grep \
-      #--perl-regexp "${regex}" \
-      #--invert-match \
-      #"${change_file}" \
-    #)"
-
-  #if [[ -n "${bad_lines}" ]]; then
-    #error "The following lines are not valid in ${BLUE}${change_file}${NC}:"
-    #echo -e "--------------------------------------------------------------------------------"
-    #echo -e "${bad_lines}"
-    #echo -e "--------------------------------------------------------------------------------"
-    #echo -e "Validation regex: ${BLUE}${regex}${NC}"
-    #exit 1
-  #fi
-  ##while IFS= read -r line || [[ -n $line ]]; do
-    ##if [[ ! "${line}" =~ ${regex} ]]; then
-      ##debug_value "line" "${line}"
-      ##bad_lines+=( "${line}" )
-    ##fi
-  ##done < "${change_file}"
-
-  ##if [[ "${#bad_lines[@]}" -gt 0 ]]; then
-    ##error "The following lines are not valid in ${BLUE}${change_file}${NC}:"
-    ##echo -e "--------------------------------------------------------------------------------"
-
-    ##for bad_line in "${bad_lines[@]}"; do
-      ##echo -e "${bad_line}"
-    ##done
-
-    ##echo -e "--------------------------------------------------------------------------------"
-    ##echo -e "Validation regex: ${BLUE}${regex}${NC}"
-    ##exit 1
-  ##fi
-#}
 
 list_unreleased_changes() {
 
