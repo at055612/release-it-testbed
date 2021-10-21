@@ -644,7 +644,7 @@ tidy_blank_lines() {
     --expression 's/\n{4,}/\n\n\n/g' \
     --expression 's/\n*(## )/\n\n\n\1/g' \
     --expression 's/(\n## \[[^]]+\] - [0-9\-]{10})\n*/\1\n\n/g' \
-    --expression 's/\n*(\n\* )/\n\1/g'
+    --expression 's/\n*(\n\* )/\n\1/g' \
     "${changelog_file}"
 }
 
