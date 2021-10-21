@@ -327,15 +327,13 @@ write_change_entry() {
     echo
     # shellcheck disable=SC2016
     {
+      echo '```bash'
       if [[ -n "${issue_title}" ]]; then
-        echo '```bash'
         echo "# ********************************************************************************"
         echo "# Issue title: ${issue_title}"
         echo "# ********************************************************************************"
-        echo '```'
         echo
       fi
-      echo '```bash'
       echo "# Only the top line will be included in the CHANGELOG."
       echo "# Entries should be in GitHub flavour markdown and should be written on a single"
       echo "# line with no hard breaks."
