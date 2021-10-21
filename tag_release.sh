@@ -927,7 +927,7 @@ main() {
   parse_changelog
 
   if [[ "${are_unreleased_issues_in_changelog}" = true ]] \
-    && [[ "${are_unreleased_issues_in_files}" = true ]]; then
+    || [[ "${are_unreleased_issues_in_files}" = true ]]; then
 
     # Changelog contains changes that are unreleased so need to
     # set up the new release heading in it.
