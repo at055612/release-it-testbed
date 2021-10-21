@@ -12,6 +12,19 @@ DO NOT ADD CHANGES HERE - ADD THEM USING log_change.sh
 ~~~
 
 
+## [v1.0.8] - 2021-10-21
+
+* Issue **#2** : Abc
+
+* Issue **#2** : File 315
+
+* Issue **#2** : xxx
+
+* A new issue
+
+* Another issue
+
+
 ## [v1.0.7] - 2021-10-20
 
 * Fix a typo
@@ -76,7 +89,8 @@ DO NOT ADD CHANGES HERE - ADD THEM USING log_change.sh
 * Initial Release
 
 
-[Unreleased]: https://github.com/at055612/release-it-testbed/compare/v1.0.7...HEAD
+[Unreleased]: https://github.com/at055612/release-it-testbed/compare/v1.0.8...HEAD
+[v1.0.8]: https://github.com/at055612/release-it-testbed/compare/v1.0.7...v1.0.8
 [v1.0.7]: https://github.com/at055612/release-it-testbed/compare/v1.0.6...v1.0.7
 [v1.0.6]: https://github.com/at055612/release-it-testbed/compare/v1.0.5...v1.0.6
 [v1.0.5]: https://github.com/at055612/release-it-testbed/compare/v1.0.4...v1.0.5
