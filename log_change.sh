@@ -544,6 +544,9 @@ main() {
   debug_value "git_issue" "${git_issue}"
   debug_value "change_text" "${change_text}"
 
+  # TODO validate change_text against the text part of issue_line_regex if
+  # it is set
+
   validate_in_git_repo
 
   establish_git_remote_namespace_and_repo

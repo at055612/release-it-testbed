@@ -913,10 +913,9 @@ main() {
 
   # Initial validation before we start modifying the changelog
   validate_unreleased_heading_in_changelog
+  validate_in_git_repo
   validate_for_uncommitted_work
   validate_local_vs_remote
-  validate_in_git_repo
-
 
   if [ $# -gt 0 ]; then
     # version passed as argument
@@ -927,24 +926,42 @@ main() {
 
   parse_changelog
 
-  if [[ "${are_unreleased_issues_in_changelog}" = true ]]; then
-    error_exit "There are unreleased change entries in the CHANGELOG.\n" \
-      "Changed should only be added using ${LOG_CHANGE_SCRIPT_NAME}"
-  fi
+  if [[ "${are_unreleased_issues_in_changelog}" = true ]] \
+    && [[ "${are_unreleased_issues_in_files}" = true ]]; then
 
-  if [[ "${are_unreleased_issues_in_files}" = true ]]; then
     # Changelog contains changes that are unreleased so need to
     # set up the new release heading in it.
     prepare_changelog_for_release "${most_recent_release_version}"
   else
-    validation_exit "There are no unreleased changes in" \
-      "${BLUE}${unreleased_changes_dir}/${GREEN}, nothing to do."
-    #if [[ -n "${requested_version}" ]]; then
-      #version="${requested_version}"
-    #else
-      #determine_version_to_release
-    #fi
+    # No 'unreleased' changes according to the changelog so it may be in a
+    # ready state for a release, i.e. tag_release was aborted mid way
+    # previously
+
+    if [[ -n "${requested_version}" ]]; then
+      version="${requested_version}"
+    else
+      determine_version_to_release
+    fi
   fi
+
+  #if [[ "${are_unreleased_issues_in_changelog}" = true ]]; then
+    #warn "There are unreleased change entries in the CHANGELOG.\n" \
+      #"Changes should only be added using ${LOG_CHANGE_SCRIPT_NAME}"
+  #fi
+
+  #if [[ "${are_unreleased_issues_in_files}" = true ]]; then
+    ## Changelog contains changes that are unreleased so need to
+    ## set up the new release heading in it.
+    #prepare_changelog_for_release "${most_recent_release_version}"
+  #else
+    #validation_exit "There are no unreleased changes in" \
+      #"${BLUE}${unreleased_changes_dir}/${GREEN}, nothing to do."
+    ##if [[ -n "${requested_version}" ]]; then
+      ##version="${requested_version}"
+    ##else
+      ##determine_version_to_release
+    ##fi
+  #fi
 
   do_validation
 
