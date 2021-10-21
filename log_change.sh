@@ -247,6 +247,7 @@ is_existing_change_file_present() {
       -name "*__${git_issue_str}.md" \
       -print \
   )"
+  debug_value "existing_files" "${existing_files[*]}"
 
   for existing_file in "${unreleased_dir}"/*__"${git_issue_str}".md; do
     debug_value "existing_file" "${existing_file}"
@@ -256,6 +257,7 @@ is_existing_change_file_present() {
   done
 
   local existing_file_count="${#existing_files[@]}"
+  debug_value "existing_file_count" "${existing_file_count}"
 
   if [[ "${existing_file_count}" -eq 0 ]]; then
     debug "File does not exist"
