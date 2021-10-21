@@ -622,12 +622,14 @@ modify_changelog() {
   # 1st expr - tidy up any instances of 3 or more blank lines replacing them
   # with 2 blank lines
   # 2nd expr - ensure all headings are preceeded with 2 blank lines
+  # 3rd expr - ensure all version headings are followed by 1 blank line
   sed \
     --regexp-extended \
     --in-place'' \
     --null-data \
     --expression 's/\n{4,}/\n\n\n/g' \
-    --expression 's/\n*(^## )/\n\n\n\1/g' \
+    --expression 's/\n*(## )/\n\n\n\1/g' \
+    --expression 's/(\n## \[[^]]+\] - [0-9\-]{10})\n*/\1\n\n/g' \
     "${changelog_file}"
 
   info "Deleting change entry files in ${BLUE}${unreleased_changes_dir}${NC}"
@@ -943,25 +945,6 @@ main() {
       determine_version_to_release
     fi
   fi
-
-  #if [[ "${are_unreleased_issues_in_changelog}" = true ]]; then
-    #warn "There are unreleased change entries in the CHANGELOG.\n" \
-      #"Changes should only be added using ${LOG_CHANGE_SCRIPT_NAME}"
-  #fi
-
-  #if [[ "${are_unreleased_issues_in_files}" = true ]]; then
-    ## Changelog contains changes that are unreleased so need to
-    ## set up the new release heading in it.
-    #prepare_changelog_for_release "${most_recent_release_version}"
-  #else
-    #validation_exit "There are no unreleased changes in" \
-      #"${BLUE}${unreleased_changes_dir}/${GREEN}, nothing to do."
-    ##if [[ -n "${requested_version}" ]]; then
-      ##version="${requested_version}"
-    ##else
-      ##determine_version_to_release
-    ##fi
-  #fi
 
   do_validation
 
