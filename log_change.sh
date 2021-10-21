@@ -279,18 +279,19 @@ is_existing_change_file_present() {
 
     COLUMNS=1
     select user_input in "${menu_item_arr[@]}"; do
-      case $user_input in
-        "Create new file" ) 
-          write_change_entry "${git_issue}" "${change_text:-}"
-          break;;
-        "Open existing file" ) 
-          open_file_in_editor "${existing_file}"
-          validate_issue_line "${existing_file}"
-          break;;
-        *) 
-          echo "Invalid option. Try another one."
-          continue;;
-      esac
+      if [[ "${user_input}" = "Create new file" ]]; then
+        write_change_entry "${git_issue}" "${change_text:-}"
+        break
+      elif [[ "${user_input}" =~ ^Open ]]; then
+        local chosen_file="${user_input#Open }"
+        debug_value "chosen_file" "${change_file}"
+        open_file_in_editor "${chosen_file}"
+        validate_issue_line "${chosen_file}"
+        break
+      else
+        echo "Invalid option. Try another one."
+        continue
+      fi
     done
 
     return 0
