@@ -284,7 +284,7 @@ is_existing_change_file_present() {
         break
       elif [[ "${user_input}" =~ ^Open ]]; then
         local chosen_file="${user_input#Open }"
-        debug_value "chosen_file" "${change_file}"
+        debug_value "chosen_file" "${chosen_file}"
         open_file_in_editor "${chosen_file}"
         validate_issue_line "${chosen_file}"
         break
