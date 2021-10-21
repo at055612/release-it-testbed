@@ -256,7 +256,7 @@ is_existing_change_file_present() {
 
     open_file_in_editor "${existing_file}"
 
-    validate_change_file "${existing_file}"
+    validate_issue_line "${existing_file}"
 
     return 0
   else
@@ -369,7 +369,7 @@ write_change_entry() {
     #fi
     open_file_in_editor "${change_file}"
 
-    validate_change_file "${change_file}"
+    validate_issue_line "${change_file}"
   fi
 }
 
@@ -407,49 +407,83 @@ open_file_in_editor() {
   debug_value "return_code" "${return_code}" 
 }
 
-validate_change_file() {
-
+validate_issue_line() {
   local change_file="$1"; shift
-  # https://regex101.com/r/cSfrND/1 
-  local regex='^(#|(# |\* Issue \*\*([a-zA-Z0-9_\-.]+\/[a-zA-Z0-9_\-.]+\#[0-9]+|[0-9]+)\*\* : |\* ).+)$'
-  local bad_lines=()
+  local simple_issue_line_regex="^\* [A-Z]"
+  local issue_line_regex="^\* (Issue \*\*([a-zA-Z0-9_\-.]+\/[a-zA-Z0-9_\-.]+\#[0-9]+|#[0-9]+)\*\* : )?[A-Z][\w .!?\`\"'*\-]+$"
 
-  local bad_lines
-  bad_lines="$( \
+  local issue_line_count
+  issue_line_count="$( \
     grep \
-      --perl-regexp "${regex}" \
-      --invert-match \
-      "${change_file}" \
+      --count
+      --perl-regexp \
+      "${simple_issue_line_regex}"
     )"
 
-  if [[ -n "${bad_lines}" ]]; then
-    error "The following lines are not valid in ${BLUE}${change_file}${NC}:"
-    echo -e "--------------------------------------------------------------------------------"
-    echo -e "${bad_lines}"
-    echo -e "--------------------------------------------------------------------------------"
-    echo -e "Validation regex: ${BLUE}${regex}${NC}"
-    exit 1
+  if [[ "${issue_line_count}" -eq 0 ]]; then
+      error_exit "No change entry line found in ${BLUE}${change_file}${NC}"
+  elif [[ "${issue_line_count}" -gt 1 ]]; then
+      error "Multiple change entry lines found in ${BLUE}${change_file}${NC}:"
+      echo -e "${DGREY}------------------------------------------------------------------------${NC}"
+      echo -e "$(grep --perl-regexp "${simple_issue_line_regex}" "${change_file}" )"
+      echo -e "${DGREY}------------------------------------------------------------------------${NC}"
+      echo -e "Validation regex: ${BLUE}${simple_issue_line_regex}${NC}"
+      exit 1
+  else
+    if ! head -n1 "${change_file}" | grep --perl-regexp "${issue_line_regex}"; then
+      error "The change entry is not valid in ${BLUE}${change_file}${NC}:"
+      echo -e "${DGREY}------------------------------------------------------------------------${NC}"
+      echo -e "$(head -n1 "${change_file}" )"
+      echo -e "${DGREY}------------------------------------------------------------------------${NC}"
+      echo -e "Validation regex: ${BLUE}${issue_line_regex}${NC}"
+      exit 1
+    fi
   fi
-  #while IFS= read -r line || [[ -n $line ]]; do
-    #if [[ ! "${line}" =~ ${regex} ]]; then
-      #debug_value "line" "${line}"
-      #bad_lines+=( "${line}" )
-    #fi
-  #done < "${change_file}"
+}
 
-  #if [[ "${#bad_lines[@]}" -gt 0 ]]; then
+#validate_change_file() {
+
+  #local change_file="$1"; shift
+  ## https://regex101.com/r/cSfrND/1 
+  #local regex='^(#|(# |\* Issue \*\*([a-zA-Z0-9_\-.]+\/[a-zA-Z0-9_\-.]+\#[0-9]+|[0-9]+)\*\* : |\* ).+)$'
+  #local bad_lines=()
+
+  #local bad_lines
+  #bad_lines="$( \
+    #grep \
+      #--perl-regexp "${regex}" \
+      #--invert-match \
+      #"${change_file}" \
+    #)"
+
+  #if [[ -n "${bad_lines}" ]]; then
     #error "The following lines are not valid in ${BLUE}${change_file}${NC}:"
     #echo -e "--------------------------------------------------------------------------------"
-
-    #for bad_line in "${bad_lines[@]}"; do
-      #echo -e "${bad_line}"
-    #done
-
+    #echo -e "${bad_lines}"
     #echo -e "--------------------------------------------------------------------------------"
     #echo -e "Validation regex: ${BLUE}${regex}${NC}"
     #exit 1
   #fi
-}
+  ##while IFS= read -r line || [[ -n $line ]]; do
+    ##if [[ ! "${line}" =~ ${regex} ]]; then
+      ##debug_value "line" "${line}"
+      ##bad_lines+=( "${line}" )
+    ##fi
+  ##done < "${change_file}"
+
+  ##if [[ "${#bad_lines[@]}" -gt 0 ]]; then
+    ##error "The following lines are not valid in ${BLUE}${change_file}${NC}:"
+    ##echo -e "--------------------------------------------------------------------------------"
+
+    ##for bad_line in "${bad_lines[@]}"; do
+      ##echo -e "${bad_line}"
+    ##done
+
+    ##echo -e "--------------------------------------------------------------------------------"
+    ##echo -e "Validation regex: ${BLUE}${regex}${NC}"
+    ##exit 1
+  ##fi
+#}
 
 list_unreleased_changes() {
 
