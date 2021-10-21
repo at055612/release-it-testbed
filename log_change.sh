@@ -489,10 +489,11 @@ validate_issue_line() {
 list_unreleased_changes() {
 
   local git_issue_str="${1:-}"; shift
+  debug_value "git_issue_str" "${git_issue_str:-}"
   local found_change_files=false
   local list_output=""
 
-  for file in "${unreleased_dir}/"*__"${git_issue_str}".md; do
+  for file in "${unreleased_dir}/"*__"${git_issue_str:-}".md; do
     if [[ -f "${file}" ]]; then
       local filename
       local change_entry_line
