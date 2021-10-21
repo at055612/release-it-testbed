@@ -257,7 +257,7 @@ is_existing_change_file_present() {
     fi
   done
 
-  debug_value "existing_files" "${existing_files[*]}"
+  debug_value "existing_files" "${existing_files[@]}"
 
   local existing_file_count="${#existing_files[@]}"
   debug_value "existing_file_count" "${existing_file_count}"
