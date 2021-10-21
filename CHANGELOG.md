@@ -7,12 +7,24 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+
+
+
+
 * One manual change only
+
+
+
 
 
 ## [v1.0.9] - 2021-10-21
 
+
+
+
+
 * Change 1
+
 
 * Change 2
 
@@ -21,6 +33,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 * Change 3
 
 * A change in the changelog
+
 
 
 ## [v1.0.8] - 2021-10-21
