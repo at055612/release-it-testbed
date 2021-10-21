@@ -393,6 +393,8 @@ open_file_in_editor() {
   # Open the user's preferred editor or vi/vim if not set
   "${editor}" "${file_to_open}"
 
+  echo ":::::::::::::::"
+
   local md5_after
   md5_after="$(md5sum "${file_to_open}" | cut -d' ' -f1)"
 
