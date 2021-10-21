@@ -568,7 +568,7 @@ main() {
   mkdir -p "${unreleased_dir}"
 
   if [[ "${git_issue}" = "list" ]]; then
-    list_unreleased_changes
+    list_unreleased_changes ""
   else
     if [[ "${git_issue}" = "auto" ]]; then
       git_issue="$(get_git_issue_from_branch)"
