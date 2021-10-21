@@ -28,6 +28,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 * Change 2
 
+
+
+
+
 * Change {3,4}
 
 * Change 3
@@ -37,6 +41,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 
 ## [v1.0.8] - 2021-10-21
+
+
+
 
 * Issue **#2** : Abc
 
