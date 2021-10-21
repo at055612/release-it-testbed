@@ -240,13 +240,6 @@ is_existing_change_file_present() {
   git_issue_str="$(format_git_issue_for_filename "${git_issue}")"
 
   local existing_files=()
-  #existing_files="$( \
-    #find \
-      #"${unreleased_dir}/" \
-      #-maxdepth 1 \
-      #-name "*__${git_issue_str}.md" \
-      #-print \
-  #)"
 
   for existing_file in "${unreleased_dir}"/*__"${git_issue_str}".md; do
     if [[ -f "${existing_file}" ]]; then
@@ -265,17 +258,26 @@ is_existing_change_file_present() {
   if [[ "${existing_file_count}" -eq 0 ]]; then
     debug "File does not exist"
     return 1
-  elif [[ "${existing_file_count}" -eq 1 ]]; then
-    debug "One file exists: ${existing_files[0]}"
-    # File exists for this issue so open it
-    info "A change entry file already exists for this issue:"
+  else 
+    # Multiple files exist for this 
+    debug "${existing_file_count} files exist"
+
+    info "Change file(s) already exist for this issue:"
     echo
 
     list_unreleased_changes "${git_issue_str}"
 
     echo
-    echo "Do you want to open this file or create a new change file for the issue?"
-    select user_input in  "Create new file" "Open existing file"; do
+    echo "Do you want to create a new change file for the issue or open an existing one?"
+
+    # Build the menu options
+    local menu_item_arr=()
+    menu_item_arr+=( "Create new file" )
+    for filename in "${existing_files[@]}"; do
+      menu_item_arr+=( "Open ${filename}" )
+    done
+
+    select user_input in "${menu_item_arr[@]}"; do
       case $user_input in
         "Create new file" ) 
           write_change_entry "${git_issue}" "${change_text:-}"
@@ -289,13 +291,6 @@ is_existing_change_file_present() {
           continue;;
       esac
     done
-
-    return 0
-  else
-    # Multiple files exist for this 
-    debug "${existing_file_count} files exist"
-
-    # TODO
 
     return 0
   fi
@@ -488,6 +483,7 @@ validate_issue_line() {
 
 list_unreleased_changes() {
 
+  # if no git issue is provided use a wildcard so we can get all issues
   local git_issue_str="${1:-*}"; shift
   debug_value "git_issue_str" "${git_issue_str}"
   local found_change_files=false
