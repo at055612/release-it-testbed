@@ -277,6 +277,7 @@ is_existing_change_file_present() {
       menu_item_arr+=( "Open ${filename}" )
     done
 
+    COLUMNS=1
     select user_input in "${menu_item_arr[@]}"; do
       case $user_input in
         "Create new file" ) 
