@@ -352,7 +352,6 @@ write_change_entry() {
   local change_entry_line="${line_prefix}${issue_part}${change_text}"
   local all_content
 
-
   # Craft the content of the file
   all_content="$( \
     echo "${change_entry_line}" 
@@ -367,11 +366,11 @@ write_change_entry() {
         echo "# ********************************************************************************"
         echo
       fi
-      echo "# Only the top line will be included in the CHANGELOG."
-      echo "# Entries should be in GitHub flavour markdown and should be written on a single"
-      echo "# line with no hard breaks."
+      echo "# ONLY the top line will be included in the CHANGELOG."
+      echo "# Entries should be in GitHub flavour markdown and should be written on a SINGLE"
+      echo "# line with no hard breaks. You can have multiple change files for a single GitHub issue."
       echo "#"
-      echo "# Examples of accptable entires are:"
+      echo "# Examples of acceptable entires are:"
       echo "#"
       echo "#"
       echo "# * Issue **1234** : A change with an associated GitHub issue in this repository"
@@ -391,15 +390,6 @@ write_change_entry() {
   echo -e "${all_content}" > "${change_file}"
 
   if [[ -z "${change_text}" ]]; then
-
-    #read -n 1 -s -r -p "Press any key to continue"
-    #echo
-
-    # No change text so open the user's preferred editor or vi/vim if not set
-    #if ! open_file_in_editor "${change_file}"; then
-      ##rm "${change_file}"
-      #error_exit "Edit aborted by user. Deleting file ${BLUE}${change_file}${NC}"
-    #fi
     open_file_in_editor "${change_file}"
 
     validate_issue_line "${change_file}"
