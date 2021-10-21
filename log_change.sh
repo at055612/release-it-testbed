@@ -270,6 +270,8 @@ is_existing_change_file_present() {
     # File exists for this issue so open it
     info "A change entry file (${BLUE}${existing_files[0]}${GREEN}) already exists for this issue"
 
+    list_unreleased_changes "${git_issue_str}"
+
     echo "Do you want to open this file or create a new change file for the issue?"
     select user_input in  "Create new file" "Open existing file"; do
       case $user_input in
@@ -484,10 +486,11 @@ validate_issue_line() {
 
 list_unreleased_changes() {
 
+  local git_issue_str="$1"; shift
   local found_change_files=false
   local list_output=""
 
-  for file in "${unreleased_dir}/"*.md; do
+  for file in "${unreleased_dir}/"*__"${git_issue_str}".md; do
     if [[ -f "${file}" ]]; then
       local filename
       local change_entry_line
