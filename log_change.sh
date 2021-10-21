@@ -359,7 +359,8 @@ write_change_entry() {
 
   if [[ -z "${change_text}" ]]; then
 
-    read -n 1 -s -r -p "Press any key to continue"
+    #read -n 1 -s -r -p "Press any key to continue"
+    #echo
 
     # No change text so open the user's preferred editor or vi/vim if not set
     #if ! open_file_in_editor "${change_file}"; then
