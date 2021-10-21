@@ -415,7 +415,7 @@ validate_issue_line() {
   local issue_line_count
   issue_line_count="$( \
     grep \
-      --count
+      --count \
       --perl-regexp \
       "${simple_issue_line_regex}"
     )"
