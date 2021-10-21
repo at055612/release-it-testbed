@@ -561,9 +561,9 @@ main() {
   else
     if [[ "${git_issue}" = "auto" ]]; then
       git_issue="$(get_git_issue_from_branch)"
-    else
-      validate_git_issue "${git_issue}"
     fi
+
+    validate_git_issue "${git_issue}"
 
     if [[ "${git_issue}" = "0" ]] \
       || ! is_existing_change_file_present "${git_issue}" "${change_text:-}"; then
