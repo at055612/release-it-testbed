@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+~~~
+DO NOT ADD CHANGES HERE - ADD THEM USING log_change.sh
+~~~
+
+
+## [v1.0.9] - 2021-10-21
+
+* Change 1
+
+* Change 2
+
+* Change {3,4}
+
+* Change 3
+
 * A change in the changelog
 
 
@@ -87,7 +102,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 * Initial Release
 
 
-[Unreleased]: https://github.com/at055612/release-it-testbed/compare/v1.0.8...HEAD
+[Unreleased]: https://github.com/at055612/release-it-testbed/compare/v1.0.9...HEAD
+[v1.0.9]: https://github.com/at055612/release-it-testbed/compare/v1.0.8...v1.0.9
 [v1.0.8]: https://github.com/at055612/release-it-testbed/compare/v1.0.7...v1.0.8
 [v1.0.7]: https://github.com/at055612/release-it-testbed/compare/v1.0.6...v1.0.7
 [v1.0.6]: https://github.com/at055612/release-it-testbed/compare/v1.0.5...v1.0.6
