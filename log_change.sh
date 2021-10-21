@@ -437,7 +437,7 @@ validate_issue_line() {
       echo -e "Validation regex: ${BLUE}${simple_issue_line_regex}${NC}"
       exit 1
   else
-    if ! head -n1 "${change_file}" | grep --perl-regexp "${issue_line_regex}"; then
+    if ! head -n1 "${change_file}" | grep --quiet --perl-regexp "${issue_line_regex}"; then
       error "The change entry is not valid in ${BLUE}${change_file}${NC}:"
       echo -e "${DGREY}------------------------------------------------------------------------${NC}"
       echo -e "$(head -n1 "${change_file}" )"
