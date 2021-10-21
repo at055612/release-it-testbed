@@ -79,13 +79,6 @@
 # The format of the headings in compare links are critical to the parsing of
 # the file.
 
-# CHANGELOG for tag_release.sh
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#
-# v1.0 2019-10-04 Check if determined version has been tagged
-# v1.1 2019-10-04 Refactor to use tag_release_config.env
-# v1.2 2021-05-05 Add changelog updating
-
 set -eo pipefail
 
 # File containing the configuration values for this script
@@ -509,7 +502,7 @@ commit_changelog() {
   git add "./${UNRELEASED_CHANGES_REL_DIR}/*.md"
 
   info "Committing the staged changes"
-  git commit -m "Update CHANGELOG for release ${next_release_version}"
+  git commit -m "Update change log for release ${next_release_version}"
 
   info "Pushing the changelog changes to the remote repository"
   git push
@@ -534,7 +527,7 @@ modify_changelog() {
     "${changelog_file}"
 
   if [ "${IS_DEBUG_ENABLED:-false}" = true ]; then
-    debug "Catting CHANGELOG"
+    debug "Catting change log"
     debug "-------------------------------"
     cat "${changelog_file}"
     debug "-------------------------------"
@@ -673,22 +666,22 @@ prepare_changelog_for_release() {
   local next_release_version_guess=""
 
   if [[ -n "${unreleased_changes_text}" ]]; then
-    info "These are the unreleased change file entries that will be added to the CHANGELOG:" \
-      "\n\n${DGREY}------------------------------------------------------------------------" \
+    info "These are the unreleased change file entries that will be added to the change log:" \
+      "\n${DGREY}------------------------------------------------------------------------" \
       "\n${YELLOW}${unreleased_changes_text}" \
       "\n${DGREY}------------------------------------------------------------------------${NC}"
   fi
 
   if [[ "${#unreleased_changes[@]}" -gt 0 ]]; then
-    info "These are the unreleased changes already in the CHANGELOG:"
-    info "\n${DGREY}------------------------------------------------------------------------"
+    info "These are the unreleased changes already in the change log:"
+    info "${DGREY}------------------------------------------------------------------------"
     for change_text in "${unreleased_changes[@]}"; do
       info "${YELLOW}${change_text}${NC}"
     done
     info "${DGREY}------------------------------------------------------------------------"
   fi
 
-  info "\nThe changelog will be modified for the new release version."
+  info "\nThe change log will be modified for the new release version."
 
   if [ -n "${prev_release_version}" ]; then
     info "\nThe last release tag/version was:" \
@@ -949,6 +942,9 @@ main() {
 
   if [[ "${are_unreleased_issues_in_changelog}" = true ]] \
     || [[ "${are_unreleased_issues_in_files}" = true ]]; then
+
+    # TODO should really validate all change entry lines to make sure they
+    # follow the regex pattern used in log_change.sh.
 
     # Changelog contains changes that are unreleased so need to
     # set up the new release heading in it.
