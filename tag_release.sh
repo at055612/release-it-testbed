@@ -617,20 +617,7 @@ modify_changelog() {
     "/${UNRELEASED_LINK_REGEX}/a ${new_link_line}" \
     "${changelog_file}"
 
-  # Treats the whole file as one big line which is a bit sub-prime
-  # for a big changelog, but not a massive issue.
-  # 1st expr - tidy up any instances of 3 or more blank lines replacing them
-  # with 2 blank lines
-  # 2nd expr - ensure all headings are preceeded with 2 blank lines
-  # 3rd expr - ensure all version headings are followed by 1 blank line
-  sed \
-    --regexp-extended \
-    --in-place'' \
-    --null-data \
-    --expression 's/\n{4,}/\n\n\n/g' \
-    --expression 's/\n*(## )/\n\n\n\1/g' \
-    --expression 's/(\n## \[[^]]+\] - [0-9\-]{10})\n*/\1\n\n/g' \
-    "${changelog_file}"
+  tidy_blank_lines "${changelog_file}"
 
   info "Deleting change entry files in ${BLUE}${unreleased_changes_dir}${NC}"
   rm \
@@ -638,6 +625,27 @@ modify_changelog() {
     "${unreleased_changes_dir}"/*.md
 
   commit_changelog "${next_release_version}"
+}
+
+tidy_blank_lines() {
+  local changelog_file="$1"; shift
+  
+  # Treats the whole file as one big line which is a bit sub-prime
+  # for a big changelog, but not a massive issue.
+  # 1st expr - tidy up any instances of 3 or more blank lines replacing them
+  # with 2 blank lines
+  # 2nd expr - ensure all headings are preceeded with 2 blank lines
+  # 3rd expr - ensure all version headings are followed by 1 blank line
+  # 4th expr - ensure all change lines are preceeded with 1 blank line
+  sed \
+    --regexp-extended \
+    --in-place'' \
+    --null-data \
+    --expression 's/\n{4,}/\n\n\n/g' \
+    --expression 's/\n*(## )/\n\n\n\1/g' \
+    --expression 's/(\n## \[[^]]+\] - [0-9\-]{10})\n*/\1\n\n/g' \
+    --expression 's/\n*(\n\* )/\n\1/g'
+    "${changelog_file}"
 }
 
 prompt_user_for_version() {
