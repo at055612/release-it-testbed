@@ -810,7 +810,7 @@ EOF
   local namespace_and_repo=()
   IFS=" " read -r -a namespace_and_repo <<< "$( \
     git remote -v \
-      | grep "(fetch)" \
+      | grep "^origin.*(fetch)$" \
       | sed -r 's#.*[/:]([^/]+)/(.*)\.git \(fetch\)#\1 \2#')"
 
   debug "namespace_and_repo: ${namespace_and_repo[*]}"
