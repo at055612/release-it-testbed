@@ -766,9 +766,11 @@ create_config_file() {
 
 # shellcheck disable=2034
 {
-  # The namespace/usser on github, i.e. github.com/<namespace>
+  # The namespace/user on github, i.e. github.com/<namespace>
+  # This should be the upstream namespace, not a fork.
   GITHUB_NAMESPACE='gchq'
   # The name of the git repository on github
+  # This should be the upstream repo, not a fork.
   GITHUB_REPO='stroom-test-data'
 
   # Git tags should match this regex to be a release tag

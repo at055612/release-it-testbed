@@ -139,9 +139,9 @@ validate_git_issue() {
     debug_value "issue_repo" "${issue_repo}"
     debug_value "issue_number" "${issue_number}"
 
-    local github_issue_url="https://api.github.com/repos/${issue_namespace}/${issue_repo}/issues/${issue_number}"
+    local github_issue_api_url="https://api.github.com/repos/${issue_namespace}/${issue_repo}/issues/${issue_number}"
 
-    debug_value "github_issue_url" "${github_issue_url}"
+    debug_value "github_issue_api_url" "${github_issue_api_url}"
 
     local curl_return_code=0
     # Turn off exit on error so we can get the curl return code in the subshell
@@ -153,7 +153,7 @@ validate_git_issue() {
         curl \
           --silent \
           --fail \
-          "${github_issue_url}" \
+          "${github_issue_api_url}" \
         | jq \
           --raw-output \
           '.title' \
@@ -165,7 +165,7 @@ validate_git_issue() {
         curl \
           --silent \
           --fail \
-          "${github_issue_url}" \
+          "${github_issue_api_url}" \
         | grep \
           --only-matching \
           --prl-regexp \
@@ -186,7 +186,7 @@ validate_git_issue() {
           --silent \
           --output /dev/null \
           --write-out "%{http_code}" \
-          "${github_issue_url}"\
+          "${github_issue_api_url}"\
       )"
       debug_value "http_status_code" "${http_status_code}"
 
@@ -331,6 +331,8 @@ write_change_entry() {
     issue_part="${issue_prefix}${git_issue}${issue_suffix}"
   fi
 
+  local github_issue_url="https://github.com/${issue_namespace}/${issue_repo}/issues/${issue_number}"
+
   local change_entry_line="${line_prefix}${issue_part}${change_text}"
   local all_content
 
@@ -344,6 +346,7 @@ write_change_entry() {
     if [[ -n "${issue_title:-}" ]]; then
       echo "# ********************************************************************************"
       echo "# Issue title: ${issue_title}"
+      echo "# Issue link:  ${github_issue_url}"
       echo "# ********************************************************************************"
       echo
     fi
