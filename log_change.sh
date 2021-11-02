@@ -564,7 +564,7 @@ main() {
     # shellcheck disable=SC1090
     source "${tag_release_config_file}"
   else
-    error_exit "Config file ${BLUE}${TAG_RELEASE_CONFIG_FILENAME}${NC}" \
+    error_exit "Config file ${BLUE}${tag_release_config_file}${NC}" \
       "doesn't exist. Run ${BLUE}./${TAG_RELEASE_SCRIPT_FILENAME}${NC}" \
       "to generate it."
   fi
