@@ -474,7 +474,7 @@ list_unreleased_changes() {
           -n1 \
           "${file}" \
       )"
-      list_output+="${BLUE}${filename}${NC}:\n${NC}${change_entry_line}${NC}\n\n"
+      list_output+="${BLUE}${filename}${NC}:\n${change_entry_line}\n\n"
     fi
   done
 
