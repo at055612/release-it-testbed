@@ -757,8 +757,8 @@ parse_changelog() {
 
 create_config_file() {
   info "Config file ${BLUE}${tag_release_config_file}${GREEN} does not" \
-    "exist so it will be created. Please verify its content then run this" \
-    "script again."
+    "exist so it will be created." \
+    "\nPlease verify its content then run this script again."
 
   # 'EOF' quoted to avoid any expansion/substitution
   cat <<'EOF' > "${tag_release_config_file}"
