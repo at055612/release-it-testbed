@@ -21,6 +21,10 @@ set -euo pipefail
 IS_DEBUG=${IS_DEBUG:-false}
 UNRELEASED_DIR_NAME="unreleased_changes"
 
+# File containing the configuration values for this script
+TAG_RELEASE_CONFIG_FILENAME='tag_release_config.env'
+TAG_RELEASE_SCRIPT_FILENAME='tag_release.sh'
+
 setup_echo_colours() {
   # Exit the script on any error
   set -e
@@ -105,7 +109,7 @@ establish_git_remote_namespace_and_repo() {
   local namespace_and_repo=()
   IFS=" " read -r -a namespace_and_repo <<< "$( \
     git remote -v \
-      | grep "(fetch)" \
+      | grep "^origin.*(fetch)$" \
       | sed -r 's#.*[/:]([^/]+)/(.*)\.git \(fetch\)#\1 \2#')"
 
   debug_value "namespace_and_repo" "${namespace_and_repo[*]}"
@@ -144,8 +148,8 @@ validate_git_issue() {
     local issue_number
     if [[ "${git_issue}" =~ ^[1-9][0-9]*$ ]]; then
       # Issue in this repo so use the values we got from the local repo
-      issue_namespace="${git_namespace}"
-      issue_repo="${git_repo}"
+      issue_namespace="${GITHUB_NAMESPACE}"
+      issue_repo="${GITHUB_REPO}"
       issue_number="${git_issue}"
     else
       # Fully qualified issue so extract the parts by replacing / and # with
@@ -213,10 +217,12 @@ validate_git_issue() {
       debug_value "http_status_code" "${http_status_code}"
 
       if [[ "${http_status_code}" = "404" ]]; then
-        error_exit "Issue ${BLUE}${git_issue}${NC} does not exist on GitHub"
+        error_exit "Issue ${BLUE}${git_issue}${NC} does not exist on" \
+          "${BLUE}github.com/(${issue_namespace}/${issue_repo}${NC}"
       else
         warn "Unable to obtain issue title for issue ${BLUE}${issue_number}${NC}" \
-          "from GitHub (HTTP status: ${BLUE}${http_status_code}${NC})"
+          "from ${BLUE}github.com/(${issue_namespace}/${issue_repo}${NC}" \
+          "(HTTP status: ${BLUE}${http_status_code}${NC})"
         issue_title=""
       fi
     else
@@ -549,10 +555,23 @@ main() {
 
   validate_in_git_repo
 
-  establish_git_remote_namespace_and_repo
-
   local repo_root_dir
   repo_root_dir="$(git rev-parse --show-toplevel)"
+
+  local tag_release_config_file="${repo_root_dir}/${TAG_RELEASE_CONFIG_FILENAME}"
+  if [[ -f "${tag_release_config_file}" ]]; then
+    # Source any repo specific config
+    # shellcheck disable=SC1090
+    source "${tag_release_config_file}"
+  else
+    error_exit "Config file ${BLUE}${TAG_RELEASE_CONFIG_FILENAME}${NC}" \
+      "doesn't exist. Run ${BLUE}./${TAG_RELEASE_SCRIPT_FILENAME}${NC}" \
+      "to generate it."
+  fi
+
+  debug_value "GITHUB_NAMESPACE" "${GITHUB_NAMESPACE}"
+  debug_value "GITHUB_REPO" "${GITHUB_REPO}"
+
   local unreleased_dir="${repo_root_dir}/${UNRELEASED_DIR_NAME}"
   mkdir -p "${unreleased_dir}"
 

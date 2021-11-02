@@ -272,7 +272,7 @@ init_changelog_file() {
       echo -e "## [Unreleased]"
       echo -e 
       echo -e "~~~"
-      echo -e "DO NOT ADD CHANGES HERE - ADD THEM USING log_change.sh"
+      echo -e "DO NOT ADD CHANGES HERE - Add them using ${LOG_CHANGE_SCRIPT_NAME}, view them with './${LOG_CHANGE_SCRIPT_NAME} list'"
       echo -e "~~~"
       echo -e
       echo -e
@@ -757,7 +757,8 @@ parse_changelog() {
 
 create_config_file() {
   info "Config file ${BLUE}${tag_release_config_file}${GREEN} does not" \
-    "exist so it will be created"
+    "exist so it will be created. Please verify its content then run this" \
+    "script again."
 
   # 'EOF' quoted to avoid any expansion/substitution
   cat <<'EOF' > "${tag_release_config_file}"
