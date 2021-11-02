@@ -117,9 +117,6 @@ validate_git_issue() {
   issue_title=""
 
   if [[ ! "${git_issue}" = "0" ]]; then
-    local issue_namespace
-    local issue_repo
-    local issue_number
     if [[ "${git_issue}" =~ ^[1-9][0-9]*$ ]]; then
       # Issue in this repo so use the values we got from the local repo
       issue_namespace="${GITHUB_NAMESPACE}"
@@ -331,7 +328,6 @@ write_change_entry() {
     issue_part="${issue_prefix}${git_issue}${issue_suffix}"
   fi
 
-  local github_issue_url="https://github.com/${issue_namespace}/${issue_repo}/issues/${issue_number}"
 
   local change_entry_line="${line_prefix}${issue_part}${change_text}"
   local all_content
@@ -344,6 +340,7 @@ write_change_entry() {
     echo
     echo '```sh'
     if [[ -n "${issue_title:-}" ]]; then
+      local github_issue_url="https://github.com/${issue_namespace}/${issue_repo}/issues/${issue_number}"
       echo "# ********************************************************************************"
       echo "# Issue title: ${issue_title}"
       echo "# Issue link:  ${github_issue_url}"
