@@ -841,7 +841,7 @@ EOF
   fi
 
   info "Confirm the values in the generated config file are appropriate, then" \
-    "commit them to git."
+    "commit it to git."
 }
 
 scan_change_files() {

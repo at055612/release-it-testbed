@@ -103,32 +103,6 @@ get_git_issue_from_branch() {
   echo "${git_issue_from_branch}"
 }
 
-establish_git_remote_namespace_and_repo() {
-  # 'origin https://github.com/gchq/stroom.git (fetch)' => 'gchq stroom'
-  # read the space delimited values into an array so we can split them
-  local namespace_and_repo=()
-  IFS=" " read -r -a namespace_and_repo <<< "$( \
-    git remote -v \
-      | grep "^origin.*(fetch)$" \
-      | sed -r 's#.*[/:]([^/]+)/(.*)\.git \(fetch\)#\1 \2#')"
-
-  debug_value "namespace_and_repo" "${namespace_and_repo[*]}"
-
-  # global scope
-  git_namespace=""
-  git_repo=""
-
-  if [[ "${#namespace_and_repo[@]}" -ne 2 ]]; then
-    warn "Unable to parse git namespace and repo from the remote URL."
-  else
-    git_namespace="${namespace_and_repo[0]}"
-    git_repo="${namespace_and_repo[1]}"
-
-    debug_value "git_namespace" "${git_namespace}"
-    debug_value "git_repo" "${git_repo}"
-  fi
-}
-
 validate_git_issue() {
   local git_issue="$1"; shift
   debug "Validating [${git_issue}]"
