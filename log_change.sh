@@ -253,7 +253,7 @@ validate_tense() {
 
   if [[ "${IS_TENSE_VALIDATED:-true}" = true ]]; then
     cat <<< "${change_text}"
-    if grep --quiet --perl-regexp "${PAST_TENSE_FIRST_WORD_REGEX}" <<< "${change_text}"; then
+    if echo "${change_text}" | grep --quiet --perl-regexp "${PAST_TENSE_FIRST_WORD_REGEX}"; then
       debug "Found past tense first word"
       return 1
     else
