@@ -39,6 +39,9 @@ ISSUE_LINE_NUMBERED_PREFIX_REGEX="^\* (Issue \*\*([a-zA-Z0-9_\-.]+\/[a-zA-Z0-9_\
 # https://regex101.com/r/Pgvckt/1
 ISSUE_LINE_TEXT_REGEX="^[A-Z].+\.$"
 
+IS_TENSE_VALIDATED=true
+PAST_TENSE_FIRST_WORD_REGEX="^(Add|Allow|Alter|Attempt|Chang|Copi|Correct|Creat|Disabl|Extend|Fix|Import|Improv|Increas|Inherit|Introduc|Limit|Mark|Migrat|Modifi|Mov|Preferr|Recognis|Reduc|Remov|Renam|Reorder|Replac|Restor|Revert|Stopp|Supersed|Switch|Turn|Updat|Upgrad)ed "
+
 setup_echo_colours() {
   # Exit the script on any error
   set -e
@@ -227,12 +230,35 @@ validate_change_text_arg() {
   local change_text="$1"; shift
 
   if ! grep --quiet --perl-regexp "${ISSUE_LINE_TEXT_REGEX}" <<< "${change_text}"; then
-    error "The change entry text is not valid:"
+    error "The change entry text is not valid"
     echo -e "${DGREY}------------------------------------------------------------------------${NC}"
     echo -e "${change_text}"
     echo -e "${DGREY}------------------------------------------------------------------------${NC}"
     echo -e "Validation regex: ${BLUE}${ISSUE_LINE_TEXT_REGEX}${NC}"
     exit 1
+  fi
+
+  if ! validate_tense; then
+    error "The change entry text should be in the imperitive mood" \
+      "\ni.e. \"Fix nasty bug\" rather than \"Fixed nasty bug"
+    echo -e "${DGREY}------------------------------------------------------------------------${NC}"
+    echo -e "${change_text}"
+    echo -e "${DGREY}------------------------------------------------------------------------${NC}"
+    exit 1
+  fi
+}
+
+validate_tense() {
+  local change_text="$1"; shift
+
+  if [[ "${IS_TENSE_VALIDATED}" = true ]]; then
+    if [[ "${change_text}" ~= ${PAST_TENSE_FIRST_WORD_REGEX} ]]; then
+      return 1
+    else
+      return 0
+    fi
+  else
+    return 0
   fi
 }
 
