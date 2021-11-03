@@ -256,6 +256,7 @@ is_existing_change_file_present() {
       menu_item_arr+=( "Open ${filename}" )
     done
 
+    # Present the user with a menu of options in a single column
     COLUMNS=1
     select user_input in "${menu_item_arr[@]}"; do
       if [[ "${user_input}" = "Create new file" ]]; then
@@ -265,7 +266,7 @@ is_existing_change_file_present() {
         local chosen_file_name="${user_input#Open }"
         debug_value "chosen_file_name" "${chosen_file_name}"
         open_file_in_editor "${unreleased_dir}/${chosen_file_name}"
-        validate_issue_line "${unreleased_dir}/${chosen_file_name}"
+        validate_issue_line "${unreleased_dir}/${chosen_file_name}" "${git_issue}"
         break
       else
         echo "Invalid option. Try another one."
@@ -372,7 +373,7 @@ write_change_entry() {
   if [[ -z "${change_text}" ]]; then
     open_file_in_editor "${change_file}"
 
-    validate_issue_line "${change_file}"
+    validate_issue_line "${change_file}" "${git_issue}"
   fi
 }
 
@@ -412,42 +413,77 @@ open_file_in_editor() {
 
 validate_issue_line() {
   local change_file="$1"; shift
+  local git_issue="$1"; shift
+  
+  # e.g
+  # * Fix bug
   # Used to look for lines that might be a change entry
-  local simple_issue_line_regex="^\* [A-Z]"
+  local issue_line_simple_prefix_regex="^\* [A-Z]"
+
+  # e.g.
+  # * Issue **#1234** : 
+  # * Issue **gchq/stroom-resources#104** : 
+  # https://regex101.com/r/VcvbFV/1
+  local issue_line_numbered_prefix_regex="^\* (Issue \*\*([a-zA-Z0-9_\-.]+\/[a-zA-Z0-9_\-.]+\#[0-9]+|#[0-9]+)\*\* : )"
 
   # A more complex regex to make sure the change entries are a consistent format
   # https://regex101.com/r/fOO8lQ/1
-  local issue_line_regex="^\* (Issue \*\*([a-zA-Z0-9_\-.]+\/[a-zA-Z0-9_\-.]+\#[0-9]+|#[0-9]+)\*\* : )?[A-Z][\w .!?\`\"'*\-]+$"
+  local issue_line_regex="^\* (Issue \*\*([a-zA-Z0-9_\-.]+\/[a-zA-Z0-9_\-.]+\#[0-9]+|#[0-9]+)\*\* : )?[A-Z][\w .;,!?£\\$\`&%@#~\"\'()[\]\/*\-]+$"
+
+  # https://regex101.com/r/Pgvckt/1
+  local issue_line_text_regex="^[A-Z].+\.$"
 
   debug "Validating file ${change_file}"
+  debug_value "git_issue" "${git_issue}"
+
+  local issue_line_prefix_regex
+  if [[ "${git_issue}" = "0" ]]; then
+    issue_line_prefix_regex="${issue_line_simple_prefix_regex}"
+  else
+    issue_line_prefix_regex="${issue_line_numbered_prefix_regex}"
+  fi
 
   local issue_line_count
   issue_line_count="$( \
     grep \
       --count \
       --perl-regexp \
-      "${simple_issue_line_regex}" \
+      "${issue_line_prefix_regex}" \
       "${change_file}"
     )"
 
   debug_value "issue_line_count" "${issue_line_count}"
 
   if [[ "${issue_line_count}" -eq 0 ]]; then
-      error_exit "No change entry line found in ${BLUE}${change_file}${NC}"
+      error_exit "No change entry line found in ${BLUE}${change_file}${NC}" \
+        "matching regex ${BLUE}${issue_line_prefix_regex}${NC}"
   elif [[ "${issue_line_count}" -gt 1 ]]; then
       error "Multiple change entry lines found in ${BLUE}${change_file}${NC}:"
       echo -e "${DGREY}------------------------------------------------------------------------${NC}"
-      echo -e "$(grep --perl-regexp "${simple_issue_line_regex}" "${change_file}" )"
+      echo -e "$(grep --perl-regexp "${issue_line_prefix_regex}" "${change_file}" )"
       echo -e "${DGREY}------------------------------------------------------------------------${NC}"
-      echo -e "Validation regex: ${BLUE}${simple_issue_line_regex}${NC}"
+      echo -e "Validation regex: ${BLUE}${issue_line_prefix_regex}${NC}"
       exit 1
   else
-    if ! head -n1 "${change_file}" | grep --quiet --perl-regexp "${issue_line_regex}"; then
-      error "The change entry is not valid in ${BLUE}${change_file}${NC}:"
+    # Found one issue line which should be on the top line so validate it
+    local issue_line
+    issue_line="$(head -n1 "${change_file}")"
+    local issue_line_text
+
+    if [[ "${git_issue}" = "0" ]]; then
+      # Delete the prefix part
+      issue_line_text="${issue_line#* }"
+    else
+      # Delete the prefix part
+      issue_line_text="${issue_line#*: }"
+    fi
+
+    if ! grep --quiet --perl-regexp "${issue_line_regex}" <<< "${issue_line}"; then
+      error "The change entry text is not valid in ${BLUE}${change_file}${NC}:"
       echo -e "${DGREY}------------------------------------------------------------------------${NC}"
-      echo -e "$(head -n1 "${change_file}" )"
+      echo -e "${issue_line_text}"
       echo -e "${DGREY}------------------------------------------------------------------------${NC}"
-      echo -e "Validation regex: ${BLUE}${issue_line_regex}${NC}"
+      echo -e "Validation regex: ${BLUE}${issue_line_text_regex}${NC}"
       exit 1
     fi
   fi
