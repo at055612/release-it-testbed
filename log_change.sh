@@ -238,7 +238,7 @@ validate_change_text_arg() {
     exit 1
   fi
 
-  if ! validate_tense; then
+  if ! validate_tense "${change_text}"; then
     error "The change entry text should be in the imperitive mood" \
       "\ni.e. \"Fix nasty bug\" rather than \"Fixed nasty bug"
     echo -e "${DGREY}------------------------------------------------------------------------${NC}"
@@ -252,7 +252,7 @@ validate_tense() {
   local change_text="$1"; shift
 
   if [[ "${IS_TENSE_VALIDATED}" = true ]]; then
-    if [[ "${change_text}" ~= ${PAST_TENSE_FIRST_WORD_REGEX} ]]; then
+    if [[ "${change_text}" =~ ${PAST_TENSE_FIRST_WORD_REGEX} ]]; then
       return 1
     else
       return 0
