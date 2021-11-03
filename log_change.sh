@@ -25,6 +25,20 @@ UNRELEASED_DIR_NAME="unreleased_changes"
 TAG_RELEASE_CONFIG_FILENAME='tag_release_config.env'
 TAG_RELEASE_SCRIPT_FILENAME='tag_release.sh'
 
+# e.g
+# * Fix bug
+# Used to look for lines that might be a change entry
+ISSUE_LINE_SIMPLE_PREFIX_REGEX="^\* [A-Z]"
+
+# e.g.
+# * Issue **#1234** : 
+# * Issue **gchq/stroom-resources#104** : 
+# https://regex101.com/r/VcvbFV/1
+ISSUE_LINE_NUMBERED_PREFIX_REGEX="^\* (Issue \*\*([a-zA-Z0-9_\-.]+\/[a-zA-Z0-9_\-.]+\#[0-9]+|#[0-9]+)\*\* : )"
+
+# https://regex101.com/r/Pgvckt/1
+ISSUE_LINE_TEXT_REGEX="^[A-Z].+\.$"
+
 setup_echo_colours() {
   # Exit the script on any error
   set -e
@@ -206,6 +220,19 @@ validate_in_git_repo() {
   if ! git rev-parse --show-toplevel > /dev/null 2>&1; then
     error_exit "You are not in a git repository. This script should be run from" \
       "inside a repository.${NC}"
+  fi
+}
+
+validate_change_text_arg() {
+  local change_text="$1"; shift
+
+  if ! grep --quiet --perl-regexp "${ISSUE_LINE_TEXT_REGEX}" <<< "${change_text}"; then
+    error "The change entry text is not valid:"
+    echo -e "${DGREY}------------------------------------------------------------------------${NC}"
+    echo -e "${change_text}"
+    echo -e "${DGREY}------------------------------------------------------------------------${NC}"
+    echo -e "Validation regex: ${BLUE}${ISSUE_LINE_TEXT_REGEX}${NC}"
+    exit 1
   fi
 }
 
@@ -415,32 +442,15 @@ validate_issue_line() {
   local change_file="$1"; shift
   local git_issue="$1"; shift
   
-  # e.g
-  # * Fix bug
-  # Used to look for lines that might be a change entry
-  local issue_line_simple_prefix_regex="^\* [A-Z]"
-
-  # e.g.
-  # * Issue **#1234** : 
-  # * Issue **gchq/stroom-resources#104** : 
-  # https://regex101.com/r/VcvbFV/1
-  local issue_line_numbered_prefix_regex="^\* (Issue \*\*([a-zA-Z0-9_\-.]+\/[a-zA-Z0-9_\-.]+\#[0-9]+|#[0-9]+)\*\* : )"
-
-  # A more complex regex to make sure the change entries are a consistent format
-  # https://regex101.com/r/fOO8lQ/1
-  local issue_line_regex="^\* (Issue \*\*([a-zA-Z0-9_\-.]+\/[a-zA-Z0-9_\-.]+\#[0-9]+|#[0-9]+)\*\* : )?[A-Z][\w .;,!?£\\$\`&%@#~\"\'()[\]\/*\-]+$"
-
-  # https://regex101.com/r/Pgvckt/1
-  local issue_line_text_regex="^[A-Z].+\.$"
 
   debug "Validating file ${change_file}"
   debug_value "git_issue" "${git_issue}"
 
   local issue_line_prefix_regex
   if [[ "${git_issue}" = "0" ]]; then
-    issue_line_prefix_regex="${issue_line_simple_prefix_regex}"
+    issue_line_prefix_regex="${ISSUE_LINE_SIMPLE_PREFIX_REGEX}"
   else
-    issue_line_prefix_regex="${issue_line_numbered_prefix_regex}"
+    issue_line_prefix_regex="${ISSUE_LINE_NUMBERED_PREFIX_REGEX}"
   fi
   debug_value "issue_line_prefix_regex" "${issue_line_prefix_regex}"
 
@@ -473,9 +483,14 @@ validate_issue_line() {
     local issue_line_text
 
     if [[ "${git_issue}" = "0" ]]; then
+      # Line should look like
+      # * Fix something.
       # Delete the prefix part
       issue_line_text="${issue_line#* }"
     else
+      # Line should look like one of
+      # * Issue **#1234** : Fix something.
+      # * Issue **gchq/stroom-resources#104** : Fix something.
       # Delete the prefix part
       issue_line_text="${issue_line#*: }"
     fi
@@ -483,12 +498,12 @@ validate_issue_line() {
     debug_value "issue_line" "${issue_line}"
     debug_value "issue_line_text" "${issue_line_text}"
 
-    if ! grep --quiet --perl-regexp "${issue_line_regex}" <<< "${issue_line}"; then
+    if ! grep --quiet --perl-regexp "${ISSUE_LINE_TEXT_REGEX}" <<< "${issue_line}"; then
       error "The change entry text is not valid in ${BLUE}${change_file}${NC}:"
       echo -e "${DGREY}------------------------------------------------------------------------${NC}"
       echo -e "${issue_line_text}"
       echo -e "${DGREY}------------------------------------------------------------------------${NC}"
-      echo -e "Validation regex: ${BLUE}${issue_line_text_regex}${NC}"
+      echo -e "Validation regex: ${BLUE}${ISSUE_LINE_TEXT_REGEX}${NC}"
       exit 1
     fi
   fi
@@ -569,6 +584,10 @@ main() {
   # it is set
 
   validate_in_git_repo
+
+  if [[ -n "${change_text}" ]]; then
+    validate_change_text_arg "${change_text}"
+  fi
 
   local repo_root_dir
   repo_root_dir="$(git rev-parse --show-toplevel)"
