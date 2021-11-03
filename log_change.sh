@@ -39,7 +39,7 @@ ISSUE_LINE_NUMBERED_PREFIX_REGEX="^\* (Issue \*\*([a-zA-Z0-9_\-.]+\/[a-zA-Z0-9_\
 # https://regex101.com/r/Pgvckt/1
 ISSUE_LINE_TEXT_REGEX="^[A-Z].+\.$"
 
-PAST_TENSE_FIRST_WORD_REGEX="^(Add|Allow|Alter|Attempt|Chang|Copi|Correct|Creat|Disabl|Extend|Fix|Import|Improv|Increas|Inherit|Introduc|Limit|Mark|Migrat|Modifi|Mov|Preferr|Recognis|Reduc|Remov|Renam|Reorder|Replac|Restor|Revert|Stopp|Supersed|Switch|Turn|Updat|Upgrad)ed .*"
+PAST_TENSE_FIRST_WORD_REGEX="^(Add|Allow|Alter|Attempt|Chang|Copi|Correct|Creat|Disabl|Extend|Fix|Import|Improv|Increas|Inherit|Introduc|Limit|Mark|Migrat|Modifi|Mov|Preferr|Recognis|Reduc|Remov|Renam|Reorder|Replac|Restor|Revert|Stopp|Supersed|Switch|Turn|Updat|Upgrad)ed "
 
 setup_echo_colours() {
   # Exit the script on any error
