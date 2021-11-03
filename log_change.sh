@@ -444,7 +444,6 @@ validate_issue_line() {
   fi
   debug_value "issue_line_prefix_regex" "${issue_line_prefix_regex}"
 
-  set -x 
   local issue_line_count
   issue_line_count="$( \
     grep \
@@ -459,13 +458,13 @@ validate_issue_line() {
 
   if [[ "${issue_line_count}" -eq 0 ]]; then
       error_exit "No change entry line found in ${BLUE}${change_file}${NC}" \
-        "matching regex ${BLUE}${issue_line_prefix_regex}${NC}"
+        "starting with regex ${BLUE}${issue_line_prefix_regex}${NC}"
   elif [[ "${issue_line_count}" -gt 1 ]]; then
       error "Multiple change entry lines found in ${BLUE}${change_file}${NC}:"
       echo -e "${DGREY}------------------------------------------------------------------------${NC}"
       echo -e "$(grep --perl-regexp "${issue_line_prefix_regex}" "${change_file}" )"
       echo -e "${DGREY}------------------------------------------------------------------------${NC}"
-      echo -e "Validation regex: ${BLUE}${issue_line_prefix_regex}${NC}"
+      echo -e "Line prefix regex: ${BLUE}${issue_line_prefix_regex}${NC}"
       exit 1
   else
     # Found one issue line which should be on the top line so validate it
