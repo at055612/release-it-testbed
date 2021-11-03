@@ -451,7 +451,8 @@ validate_issue_line() {
       --count \
       --perl-regexp \
       "${issue_line_prefix_regex}" \
-      "${change_file}"
+      "${change_file}" \
+    || true
     )"
 
   debug_value "issue_line_count" "${issue_line_count}"
