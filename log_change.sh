@@ -478,6 +478,9 @@ validate_issue_line() {
       issue_line_text="${issue_line#*: }"
     fi
 
+    debug_value "issue_line" "${issue_line}"
+    debug_value "issue_line_text" "${issue_line_text}"
+
     if ! grep --quiet --perl-regexp "${issue_line_regex}" <<< "${issue_line}"; then
       error "The change entry text is not valid in ${BLUE}${change_file}${NC}:"
       echo -e "${DGREY}------------------------------------------------------------------------${NC}"
