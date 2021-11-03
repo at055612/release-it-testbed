@@ -442,6 +442,7 @@ validate_issue_line() {
   else
     issue_line_prefix_regex="${issue_line_numbered_prefix_regex}"
   fi
+  debug_value "issue_line_prefix_regex" "${issue_line_prefix_regex}"
 
   local issue_line_count
   issue_line_count="$( \
