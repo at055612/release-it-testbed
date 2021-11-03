@@ -39,7 +39,6 @@ ISSUE_LINE_NUMBERED_PREFIX_REGEX="^\* (Issue \*\*([a-zA-Z0-9_\-.]+\/[a-zA-Z0-9_\
 # https://regex101.com/r/Pgvckt/1
 ISSUE_LINE_TEXT_REGEX="^[A-Z].+\.$"
 
-IS_TENSE_VALIDATED=true
 PAST_TENSE_FIRST_WORD_REGEX="^(Add|Allow|Alter|Attempt|Chang|Copi|Correct|Creat|Disabl|Extend|Fix|Import|Improv|Increas|Inherit|Introduc|Limit|Mark|Migrat|Modifi|Mov|Preferr|Recognis|Reduc|Remov|Renam|Reorder|Replac|Restor|Revert|Stopp|Supersed|Switch|Turn|Updat|Upgrad)ed "
 
 setup_echo_colours() {
@@ -251,13 +250,16 @@ validate_change_text_arg() {
 validate_tense() {
   local change_text="$1"; shift
 
-  if [[ "${IS_TENSE_VALIDATED}" = true ]]; then
+  if [[ "${IS_TENSE_VALIDATED:-true}" = true ]]; then
     if [[ "${change_text}" =~ ${PAST_TENSE_FIRST_WORD_REGEX} ]]; then
+      debug "Found past tense first word"
       return 1
     else
+      debug "Tense validated ok"
       return 0
     fi
   else
+    debug "Tense validation disabled"
     return 0
   fi
 }
