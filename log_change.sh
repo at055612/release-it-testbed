@@ -444,6 +444,7 @@ validate_issue_line() {
   fi
   debug_value "issue_line_prefix_regex" "${issue_line_prefix_regex}"
 
+  set -x 
   local issue_line_count
   issue_line_count="$( \
     grep \
