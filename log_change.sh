@@ -249,6 +249,7 @@ validate_change_text_arg() {
 
 validate_tense() {
   local change_text="$1"; shift
+  debug_value "change_text" "${change_text}"
 
   if [[ "${IS_TENSE_VALIDATED:-true}" = true ]]; then
     set -x
