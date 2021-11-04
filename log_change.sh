@@ -322,8 +322,7 @@ is_existing_change_file_present() {
       elif [[ "${user_input}" =~ ^Open ]]; then
         local chosen_file_name="${user_input#Open }"
         debug_value "chosen_file_name" "${chosen_file_name}"
-        open_file_in_editor "${unreleased_dir}/${chosen_file_name}"
-        validate_issue_line_in_file "${unreleased_dir}/${chosen_file_name}" "${git_issue}"
+        open_file_in_editor "${unreleased_dir}/${chosen_file_name}" "${git_issue}"
         break
       else
         echo "Invalid option. Try another one."
@@ -431,8 +430,6 @@ write_change_entry() {
 
   if [[ -z "${change_text}" ]]; then
     open_file_in_editor "${change_file}" "${git_issue}"
-
-    validate_issue_line_in_file "${change_file}" "${git_issue}"
   fi
 }
 
