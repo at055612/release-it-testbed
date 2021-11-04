@@ -15,7 +15,6 @@
 # change entries to the CHANGELOG at release time.
 ##########################################################################
 
-
 set -euo pipefail
 
 IS_DEBUG=${IS_DEBUG:-false}
@@ -39,7 +38,8 @@ ISSUE_LINE_NUMBERED_PREFIX_REGEX="^\* (Issue \*\*([a-zA-Z0-9_\-.]+\/[a-zA-Z0-9_\
 # https://regex101.com/r/Pgvckt/1
 ISSUE_LINE_TEXT_REGEX="^[A-Z].+\.$"
 
-PAST_TENSE_FIRST_WORD_REGEX="^(Add|Allow|Alter|Attempt|Chang|Copi|Correct|Creat|Disabl|Extend|Fix|Import|Improv|Increas|Inherit|Introduc|Limit|Mark|Migrat|Modifi|Mov|Preferr|Recognis|Reduc|Remov|Renam|Reorder|Replac|Restor|Revert|Stopp|Supersed|Switch|Turn|Updat|Upgrad)ed "
+# Lines starting with a word in the past tense
+PAST_TENSE_FIRST_WORD_REGEX='^(Add|Allow|Alter|Attempt|Chang|Copi|Correct|Creat|Disabl|Extend|Fix|Import|Improv|Increas|Inherit|Introduc|Limit|Mark|Migrat|Modifi|Mov|Preferr|Recognis|Reduc|Remov|Renam|Reorder|Replac|Restor|Revert|Stopp|Supersed|Switch|Turn|Updat|Upgrad)ed[^a-z]'
 
 setup_echo_colours() {
   # Exit the script on any error
@@ -87,7 +87,7 @@ debug_value() {
   local value="$1"; shift
   
   if [ "${IS_DEBUG}" = true ]; then
-    echo -e "${DGREY}DEBUG ${name}: ${value}${NC}"
+    echo -e "${DGREY}DEBUG ${name}: [${value}]${NC}"
   fi
 }
 
@@ -239,7 +239,7 @@ validate_change_text_arg() {
 
   if ! validate_tense "${change_text}"; then
     error "The change entry text should be in the imperitive mood" \
-      "\ni.e. \"Fix nasty bug\" rather than \"Fixed nasty bug"
+      "\ni.e. \"Fix nasty bug\" rather than \"Fixed nasty bug\""
     echo -e "${DGREY}------------------------------------------------------------------------${NC}"
     echo -e "${change_text}"
     echo -e "${DGREY}------------------------------------------------------------------------${NC}"
@@ -248,6 +248,7 @@ validate_change_text_arg() {
 }
 
 validate_tense() {
+  debug "validate_tense()"
   local change_text="$1"; shift
   debug_value "change_text" "${change_text}"
 
@@ -322,7 +323,7 @@ is_existing_change_file_present() {
         local chosen_file_name="${user_input#Open }"
         debug_value "chosen_file_name" "${chosen_file_name}"
         open_file_in_editor "${unreleased_dir}/${chosen_file_name}"
-        validate_issue_line "${unreleased_dir}/${chosen_file_name}" "${git_issue}"
+        validate_issue_line_in_file "${unreleased_dir}/${chosen_file_name}" "${git_issue}"
         break
       else
         echo "Invalid option. Try another one."
@@ -429,50 +430,43 @@ write_change_entry() {
   echo -e "${all_content}" > "${change_file}"
 
   if [[ -z "${change_text}" ]]; then
-    open_file_in_editor "${change_file}"
+    open_file_in_editor "${change_file}" "${git_issue}"
 
-    validate_issue_line "${change_file}" "${git_issue}"
+    validate_issue_line_in_file "${change_file}" "${git_issue}"
   fi
 }
 
 # Return zero if the file was changed, else non-zero
 open_file_in_editor() {
   local file_to_open="$1"; shift
+  local git_issue="$1"; shift
   
-  local return_code=0
-  local md5_before
-  md5_before="$(md5sum "${file_to_open}" | cut -d' ' -f1)"
-
   local editor
   editor="${VISUAL:-${EDITOR:-vi}}"
 
-  info "Opening file ${BLUE}${file_to_open}${GREEN} in editor" \
-    "(${BLUE}${editor}${GREEN})${NC}"
+  while true; do
+    info "Opening file ${BLUE}${file_to_open}${GREEN} in editor" \
+      "(${BLUE}${editor}${GREEN})${NC}"
 
-  read -n 1 -s -r -p "Press any key to continue"
-  echo
+    read -n 1 -s -r -p "Press any key to continue"
+    echo
+    echo
 
-  # Open the user's preferred editor or vi/vim if not set
-  "${editor}" "${file_to_open}"
+    # Open the user's preferred editor or vi/vim if not set
+    "${editor}" "${file_to_open}"
 
-  local md5_after
-  md5_after="$(md5sum "${file_to_open}" | cut -d' ' -f1)"
-
-  if [[ "${md5_before}" = "${md5_after}" ]]; then
-    debug "File unchanged"
-    return 1
-  else
-    debug "File changed"
-    return 0
-  fi
-
-  debug_value "return_code" "${return_code}" 
+    if validate_issue_line_in_file "${file_to_open}" "${git_issue}"; then
+      # Happy with the file so break out of loop
+      info "File passed validation"
+      break;
+    fi
+  done
 }
 
-validate_issue_line() {
+validate_issue_line_in_file() {
+  debug "validate_issue_line_in_file ($*)"
   local change_file="$1"; shift
   local git_issue="$1"; shift
-  
 
   debug "Validating file ${change_file}"
   debug_value "git_issue" "${git_issue}"
@@ -506,7 +500,7 @@ validate_issue_line() {
       echo -e "$(grep --perl-regexp "${issue_line_prefix_regex}" "${change_file}" )"
       echo -e "${DGREY}------------------------------------------------------------------------${NC}"
       echo -e "Line prefix regex: ${BLUE}${issue_line_prefix_regex}${NC}"
-      exit 1
+      return 1
   else
     # Found one issue line which should be on the top line so validate it
     local issue_line
@@ -529,14 +523,22 @@ validate_issue_line() {
     debug_value "issue_line" "${issue_line}"
     debug_value "issue_line_text" "${issue_line_text}"
 
-    set -x 
-    if ! grep --quiet --perl-regexp "${ISSUE_LINE_TEXT_REGEX}" <<< "${issue_line}"; then
+    if ! echo "${issue_line_text}" | grep --quiet --perl-regexp "${ISSUE_LINE_TEXT_REGEX}"; then
       error "The change entry text is not valid in ${BLUE}${change_file}${NC}:"
       echo -e "${DGREY}------------------------------------------------------------------------${NC}"
       echo -e "${issue_line_text}"
       echo -e "${DGREY}------------------------------------------------------------------------${NC}"
       echo -e "Validation regex: ${BLUE}${ISSUE_LINE_TEXT_REGEX}${NC}"
-      exit 1
+      return 1
+    fi
+
+    if ! validate_tense "${issue_line_text}"; then
+      error "The change entry text should be in the imperitive mood" \
+        "\ni.e. \"Fix nasty bug\" rather than \"Fixed nasty bug\""
+      echo -e "${DGREY}------------------------------------------------------------------------${NC}"
+      echo -e "${issue_line_text}"
+      echo -e "${DGREY}------------------------------------------------------------------------${NC}"
+      return 1
     fi
   fi
 }
