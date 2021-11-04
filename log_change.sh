@@ -404,18 +404,20 @@ write_change_entry() {
       echo "# ********************************************************************************"
       echo
     fi
-    echo "# ONLY the top line will be included in the CHANGELOG."
-    echo "# Entries should be in GitHub flavour markdown and should be written on a SINGLE"
+    echo "# ONLY the top line will be included as a change entry in the CHANGELOG."
+    echo "# The entry should be in GitHub flavour markdown and should be written on a SINGLE"
     echo "# line with no hard breaks. You can have multiple change files for a single GitHub issue."
+    echo "# The  entry should be written in the imperative mood, i.e. 'Fix nasty bug' rather than"
+    echo "# 'Fixed nasty bug'."
     echo "#"
-    echo "# Examples of acceptable entires are:"
+    echo "# Examples of acceptable entries are:"
     echo "#"
     echo "#"
-    echo "# * Issue **1234** : A change with an associated GitHub issue in this repository"
+    echo "# * Issue **123** : Fix bug with an associated GitHub issue in this repository"
     echo "#"
-    echo "# * Issue **namespace/other-repo#1234** : A change with an associated GitHub issue in another repository"
+    echo "# * Issue **namespace/other-repo#456** : Fix bug with an associated GitHub issue in another repository"
     echo "#"
-    echo "# * A change with no associated GitHub issue."
+    echo "# * Fix bug with no associated GitHub issue."
     echo '```'
   )"
 
