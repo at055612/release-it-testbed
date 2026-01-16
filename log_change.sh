@@ -186,6 +186,7 @@ show_help() {
 get_git_issue_from_branch() {
   local current_branch
   current_branch="$(git rev-parse --abbrev-ref HEAD)"
+  debug_value "current_branch" "${current_branch}"
 
   # Examples of branches that will give us an issue number:
   # 1234
@@ -193,14 +194,15 @@ get_git_issue_from_branch() {
   # gh-1234_some-text
   # foo_1234_bar
   git_issue="$( \
-    echo "${current_branch}" \
-    | grep \
+    grep \
       --only-matching \
       --perl-regexp \
       '(^[1-9][0-9]*$|((?<=[_-])|^)[1-9][0-9]*((?=[-_])|$))' \
+      <<< "${current_branch}" \
+      || true \
   )"
 
-  debug "git_issue (from branch)" "${git_issue}"
+  debug_value "git_issue (from branch)" "${git_issue}"
 
   #if [[ -z "${git_issue_from_branch}" ]]; then
     #error_exit "Unable to establish GitHub issue number from" \

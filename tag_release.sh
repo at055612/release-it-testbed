@@ -51,21 +51,21 @@
 #   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #   |## [Unreleased]
 #   |
-#   |* Fix typo
+#   |* Bug : Fix typo
 #   |
 #   |
 #   |## [v6.0-beta.29] - 2019-02-21
 #   |
-#   |* Change Travis build to generate sha256 hashes for release zip/jars.
+#   |* Refactor : Change Travis build to generate sha256 hashes for release zip/jars.
 #   |
-#   |* Uplift the visualisations content pack to v3.2.1
+#   |* Dependency : Uplift the visualisations content pack to v3.2.1
 #   |
-#   |* Issue **#1100** : Fix incorrect sort direction being sent to visualisations.
+#   |* Bug **#1100** : Fix incorrect sort direction being sent to visualisations.
 #   |
 #   |
 #   |## [v6.0-beta.28] - 2019-02-20
 #   |
-#   |* Add guard against race condition
+#   |* Bug : Add guard against race condition
 #   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # And have a section at the bottom like this:
@@ -431,7 +431,6 @@ determine_version_to_release() {
   if git tag | grep -q "^${determined_version}$"; then
     error_exit "${GREEN}The latest version in ${BLUE}${CHANGELOG_FILENAME}${GREEN}" \
       "[${BLUE}${determined_version}${GREEN}] has already been tagged in git.${NC}"
-    determined_version=
   fi
 
 
@@ -498,8 +497,13 @@ commit_changelog() {
 
   info "Adding ${BLUE}${CHANGELOG_FILENAME}${GREEN} to the git index."
   git add "${changelog_file}"
-  info "Adding deleted change entry files to the git index."
-  git add "./${UNRELEASED_CHANGES_REL_DIR}/*.md"
+
+  if [[ "${are_unreleased_issues_in_files}" = true ]]; then
+    info "Adding deleted change entry files to the git index."
+    git add "./${UNRELEASED_CHANGES_REL_DIR}/*.md"
+  else
+    info "No deleted change entry files to add to the git index."
+  fi
 
   info "Committing the staged changes"
   git commit -m "Update change log for release ${next_release_version}"
