@@ -12,6 +12,15 @@ DO NOT ADD CHANGES HERE - ADD THEM USING log_change.sh
 ~~~
 
 
+## [v1.0.11] - 2026-01-16
+
+* Feature **#3** : Update log_change.sh.
+
+* Dependency : Update dep.
+
+* Bug : Fix bug in log change.
+
+
 ## [v1.0.10] - 2021-10-21
 
 * Change 1
@@ -109,7 +118,8 @@ DO NOT ADD CHANGES HERE - ADD THEM USING log_change.sh
 * Initial Release
 
 
-[Unreleased]: https://github.com/at055612/release-it-testbed/compare/v1.0.10...HEAD
+[Unreleased]: https://github.com/at055612/release-it-testbed/compare/v1.0.11...HEAD
+[v1.0.11]: https://github.com/at055612/release-it-testbed/compare/v1.0.10...v1.0.11
 [v1.0.10]: https://github.com/at055612/release-it-testbed/compare/v1.0.9...v1.0.10
 [v1.0.9]: https://github.com/at055612/release-it-testbed/compare/v1.0.8...v1.0.9
 [v1.0.8]: https://github.com/at055612/release-it-testbed/compare/v1.0.7...v1.0.8
