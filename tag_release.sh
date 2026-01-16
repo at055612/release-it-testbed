@@ -166,6 +166,15 @@ debug() {
   fi
 }
 
+debug_value() {
+  local name="$1"; shift
+  local value="$*"; shift
+  
+  if [ "${IS_DEBUG_ENABLED:-false}" = true ]; then
+    echo -e "${DGREY}DEBUG ${name}: [${value}]${NC}"
+  fi
+}
+
 info() {
   echo -e "${GREEN}$*${NC}"
 }
@@ -380,6 +389,12 @@ apply_custom_validation() {
 validate_local_vs_remote() {
   local branch_name
   branch_name="$(git rev-parse --abbrev-ref HEAD)"
+  debug_value "branch_name" "${branch_name}"
+
+  if ! git ls-remote --exit-code --heads "${GIT_REMOTE_NAME}" "${branch_name}"; then
+    error_exit "Branch '${branch_name}' does not exist on remote '${GIT_REMOTE_NAME}'"
+  fi
+
 
   if ! git diff --quiet "${GIT_REMOTE_NAME}/${branch_name}"; then
 
